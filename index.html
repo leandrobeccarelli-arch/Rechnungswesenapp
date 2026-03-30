@@ -203,6 +203,37 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .bs-explain-box.show{display:block}
 .bs-explain-box strong{font-weight:700}
 .bs-field-btns{display:flex;gap:3px;flex-shrink:0}
+
+/* ===== SORTIEREN TAB ===== */
+.sort-list{background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;margin-bottom:16px}
+.sort-list-header{padding:14px 18px;font-weight:700;font-size:.9rem;border-bottom:1px solid var(--border);background:var(--input-bg)}
+.sort-item{display:flex;align-items:center;gap:10px;padding:9px 18px;border-bottom:1px solid var(--border);font-size:.84rem}
+.sort-item:last-child{border-bottom:none}
+.sort-item .sort-name{flex:1;font-weight:500}
+.sort-item .sort-betrag{font-weight:700;width:60px;text-align:right;flex-shrink:0}
+.sort-item .sort-sel-wrap{width:155px;flex-shrink:0;position:relative}
+.sort-item select{width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:.8rem;background:var(--input-bg);outline:none;appearance:none;cursor:pointer;font-family:'Inter',sans-serif}
+.sort-item select:focus{border-color:var(--accent)}
+.sort-item select.correct{border-color:var(--green);background:#f0fdf4}
+.sort-item select.wrong{border-color:var(--red);background:#fef2f2}
+.sort-item select.hint{border-color:var(--orange);background:#fffbeb}
+.sort-item .sort-chk{width:22px;text-align:center;font-size:.9rem;flex-shrink:0}
+
+.sort-preview{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media(max-width:700px){.sort-preview{grid-template-columns:1fr}}
+.sort-box{background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.sort-box-header{padding:12px 16px;font-weight:700;font-size:.88rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sort-box-header.bilanz{background:linear-gradient(135deg,#eff6ff,#dbeafe)}
+.sort-box-header.er{background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
+.sort-sub{padding:6px 16px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);background:var(--input-bg);border-bottom:1px solid var(--border)}
+.sort-entry{display:flex;justify-content:space-between;padding:5px 16px;font-size:.82rem;border-bottom:1px solid var(--border)}
+.sort-entry:last-child{border-bottom:none}
+.sort-entry .se-name{color:var(--text)}
+.sort-entry .se-val{font-weight:600}
+.sort-total{display:flex;justify-content:space-between;padding:8px 16px;font-weight:700;font-size:.88rem;border-top:2px solid var(--border);background:var(--input-bg)}
+.sort-gewinn{padding:10px 16px;font-weight:700;font-size:.9rem;text-align:center}
+.sort-gewinn.pos{color:var(--green);background:#f0fdf4}
+.sort-gewinn.neg{color:var(--red);background:#fef2f2}
 </style>
 </head>
 <body>
@@ -217,6 +248,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <button class="nav-btn" id="tab-ueben" onclick="switchTab('ueben')">Zuordnen</button>
     <button class="nav-btn" id="tab-auswirkung" onclick="switchTab('auswirkung')">Auswirkungen</button>
     <button class="nav-btn" id="tab-buchung" onclick="switchTab('buchung')">Buchungssätze</button>
+    <button class="nav-btn" id="tab-sortieren" onclick="switchTab('sortieren')">Sortieren</button>
   </div>
 </div>
 
@@ -537,6 +569,37 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
 </div>
 
+<!-- ========== SORTIEREN TAB ========== -->
+<div class="container" id="view-sortieren" style="display:none">
+
+  <div class="score-bar">
+    <span>Richtig:</span>
+    <span class="score" id="sort-score-display">0 / 0</span>
+  </div>
+
+  <div class="info-box">
+    <strong>Positionen sortieren:</strong> Ordne jede Position der richtigen Kategorie zu — Bilanz (Aktiv UV/AV, Passiv FK/EK) oder Erfolgsrechnung (Aufwand/Ertrag). Danach wird die Bilanz und ER automatisch aufgestellt.
+  </div>
+
+  <div id="sort-firma" style="font-weight:700;font-size:1rem;margin-bottom:12px"></div>
+
+  <div class="sort-list">
+    <div class="sort-list-header">Positionen (alphabetisch)</div>
+    <div id="sort-items"></div>
+  </div>
+
+  <div class="sort-preview" id="sort-preview" style="display:none"></div>
+
+  <div class="feedback-box" id="sort-feedback"></div>
+
+  <div class="task-actions">
+    <button class="btn btn-primary" id="sort-check-btn" onclick="checkSortieren()">Prüfen</button>
+    <button class="btn btn-outline" id="sort-next-btn" onclick="generateSortieren()" style="display:none">Nächste Aufgabe</button>
+    <button class="btn btn-outline" id="sort-learn-btn" onclick="switchTab('rechner')" style="display:none">Nochmals lernen</button>
+    <button class="btn btn-outline" id="sort-show-btn" onclick="showSortierenSolution()">Lösung zeigen</button>
+  </div>
+</div>
+
 <script>
 // ========== RECHNER ==========
 function parseNum(id) {
@@ -585,13 +648,14 @@ function resetAll() {
 
 // ========== TABS ==========
 function switchTab(tab) {
-  ['rechner','ueben','auswirkung','buchung'].forEach(t => {
+  ['rechner','ueben','auswirkung','buchung','sortieren'].forEach(t => {
     document.getElementById('view-' + t).style.display = tab === t ? '' : 'none';
     document.getElementById('tab-' + t).className = 'nav-btn' + (tab === t ? ' active' : '');
   });
   if (tab === 'ueben' && !currentTask) generateTask();
   if (tab === 'auswirkung' && !currentAw) generateAuswirkung();
   if (tab === 'buchung' && !currentBs) generateBuchung();
+  if (tab === 'sortieren' && !currentSort) generateSortieren();
 }
 
 // ========== AUFGABEN ==========
@@ -1742,6 +1806,272 @@ function showBuchungSolution() {
   document.getElementById('bs-learn-btn').style.display = '';
   document.getElementById('bs-show-btn').style.display = 'none';
   document.getElementById('bs-score-display').textContent = bsSolved + ' / ' + bsTotal;
+}
+
+// ========== SORTIEREN ==========
+let currentSort = null;
+let sortSolved = 0, sortTotal = 0;
+
+const branchen = [
+  'Fachgeschäft für Surf- und Tauchbedarf',
+  'Velowerkstatt & Zubehör',
+  'Bio-Lebensmittelladen',
+  'IT-Beratungsfirma',
+  'Blumenladen',
+  'Schreinerei',
+  'Coiffeursalon',
+  'Buchhandlung',
+  'Bäckerei & Konditorei',
+  'Sportartikel-Shop',
+  'Elektroinstallationen',
+  'Architekturbüro',
+];
+
+// Positionen-Pool mit Kategorie
+// Kategorien: aktiv-uv, aktiv-av, passiv-fk, passiv-ek, aufwand, ertrag
+const posPool = {
+  'aktiv-uv': [
+    {name: 'Flüssige Mittel', min: 20, max: 150, step: 5},
+    {name: 'Kasse', min: 5, max: 30, step: 1},
+    {name: 'Bank', min: 30, max: 200, step: 10},
+    {name: 'Debitoren', min: 10, max: 80, step: 5},
+    {name: 'Forderungen aus L+L', min: 8, max: 60, step: 2},
+    {name: 'Vorräte', min: 30, max: 250, step: 5},
+    {name: 'Warenvorrat', min: 40, max: 200, step: 10},
+    {name: 'Wertschriften', min: 10, max: 80, step: 5},
+    {name: 'Vorsteuer (VST)', min: 2, max: 15, step: 1},
+  ],
+  'aktiv-av': [
+    {name: 'Mobiliar', min: 20, max: 100, step: 5},
+    {name: 'Fahrzeuge', min: 15, max: 80, step: 5},
+    {name: 'Maschinen', min: 30, max: 150, step: 10},
+    {name: 'Einrichtungen', min: 20, max: 80, step: 5},
+    {name: 'Informatik', min: 10, max: 50, step: 5},
+    {name: 'Schulungsgeräte', min: 10, max: 60, step: 5},
+    {name: 'Werkzeuge', min: 5, max: 40, step: 5},
+    {name: 'Immobilien', min: 200, max: 800, step: 50},
+    {name: 'Beteiligung', min: 50, max: 200, step: 10},
+  ],
+  'passiv-fk': [
+    {name: 'Verbindlichkeiten aus L+L', min: 30, max: 200, step: 10},
+    {name: 'Kreditoren', min: 20, max: 150, step: 5},
+    {name: 'Darlehen (Schuld)', min: 50, max: 300, step: 10},
+    {name: 'Bankdarlehen', min: 50, max: 250, step: 10},
+    {name: 'Hypothek', min: 100, max: 500, step: 50},
+    {name: 'Geschuldete MWST', min: 5, max: 30, step: 1},
+    {name: 'Passive Rechnungsabgrenzung', min: 5, max: 25, step: 1},
+  ],
+  'passiv-ek': [
+    {name: 'Eigenkapital', min: 50, max: 300, step: 10},
+  ],
+  'aufwand': [
+    {name: 'Warenaufwand', min: 200, max: 700, step: 10},
+    {name: 'Materialaufwand', min: 100, max: 400, step: 10},
+    {name: 'Personalaufwand', min: 100, max: 400, step: 10},
+    {name: 'Löhne', min: 80, max: 300, step: 10},
+    {name: 'Sozialleistungen', min: 15, max: 60, step: 5},
+    {name: 'Raumaufwand', min: 20, max: 100, step: 5},
+    {name: 'Abschreibungen', min: 10, max: 50, step: 1},
+    {name: 'Finanzaufwand', min: 2, max: 20, step: 1},
+    {name: 'Zinsaufwand', min: 3, max: 25, step: 1},
+    {name: 'Übriger Aufwand', min: 10, max: 60, step: 5},
+    {name: 'Werbeaufwand', min: 5, max: 40, step: 5},
+    {name: 'Versicherungsaufwand', min: 5, max: 25, step: 1},
+    {name: 'Energieaufwand', min: 3, max: 20, step: 1},
+    {name: 'Informatikaufwand', min: 5, max: 30, step: 5},
+    {name: 'Fahrzeugaufwand', min: 5, max: 25, step: 1},
+    {name: 'Unterhalt', min: 5, max: 30, step: 5},
+  ],
+  'ertrag': [
+    {name: 'Warenertrag', min: 400, max: 1200, step: 10},
+    {name: 'Dienstleistungsertrag', min: 200, max: 600, step: 10},
+    {name: 'Ertrag Kurshonorare', min: 50, max: 200, step: 10},
+    {name: 'Übrige Erträge', min: 10, max: 60, step: 5},
+    {name: 'Zinsertrag', min: 1, max: 10, step: 1},
+    {name: 'Mietertrag', min: 10, max: 50, step: 5},
+  ]
+};
+
+function pickPos(cat, n) {
+  const pool = [...posPool[cat]].sort(() => Math.random() - 0.5);
+  return pool.slice(0, n).map(p => ({
+    name: p.name,
+    betrag: rand(p.min, p.max, p.step),
+    cat: cat
+  }));
+}
+
+function generateSortieren() {
+  const branche = branchen[Math.floor(Math.random() * branchen.length)];
+
+  // Wähle Positionen
+  let positionen = [];
+  positionen.push(...pickPos('aktiv-uv', 3 + Math.floor(Math.random() * 2)));
+  positionen.push(...pickPos('aktiv-av', 2 + Math.floor(Math.random() * 2)));
+  positionen.push(...pickPos('passiv-fk', 2 + Math.floor(Math.random() * 2)));
+  positionen.push(...pickPos('aufwand', 4 + Math.floor(Math.random() * 3)));
+  positionen.push(...pickPos('ertrag', 1 + Math.floor(Math.random() * 2)));
+
+  // Bilanz muss ausgeglichen sein → EK berechnen
+  const sumAktiv = positionen.filter(p => p.cat.startsWith('aktiv')).reduce((s, p) => s + p.betrag, 0);
+  const sumFK = positionen.filter(p => p.cat === 'passiv-fk').reduce((s, p) => s + p.betrag, 0);
+  const sumAufwand = positionen.filter(p => p.cat === 'aufwand').reduce((s, p) => s + p.betrag, 0);
+  const sumErtrag = positionen.filter(p => p.cat === 'ertrag').reduce((s, p) => s + p.betrag, 0);
+  const gewinn = sumErtrag - sumAufwand;
+
+  // EK = Aktiven - FK - Gewinn (Schlussbilanz: Aktiv = FK + EK + Gewinn)
+  // Anfangs-EK so wählen, dass Bilanz aufgeht
+  const ek = sumAktiv - sumFK - gewinn;
+
+  if (ek < 10) {
+    // Falls EK zu klein, nochmals generieren
+    return generateSortieren();
+  }
+
+  positionen.push({name: 'Eigenkapital', betrag: ek, cat: 'passiv-ek'});
+
+  // Alphabetisch sortieren
+  positionen.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+
+  currentSort = {branche, positionen, gewinn};
+
+  document.getElementById('sort-firma').textContent = branche;
+  renderSortieren();
+
+  document.getElementById('sort-preview').style.display = 'none';
+  document.getElementById('sort-feedback').className = 'feedback-box';
+  document.getElementById('sort-check-btn').style.display = '';
+  document.getElementById('sort-next-btn').style.display = 'none';
+  document.getElementById('sort-learn-btn').style.display = 'none';
+  document.getElementById('sort-show-btn').style.display = '';
+}
+
+function renderSortieren() {
+  const container = document.getElementById('sort-items');
+  const opts = `<option value="">— Zuordnen —</option>
+    <optgroup label="Bilanz Aktiv">
+      <option value="aktiv-uv">Umlaufvermögen</option>
+      <option value="aktiv-av">Anlagevermögen</option>
+    </optgroup>
+    <optgroup label="Bilanz Passiv">
+      <option value="passiv-fk">Fremdkapital</option>
+      <option value="passiv-ek">Eigenkapital</option>
+    </optgroup>
+    <optgroup label="Erfolgsrechnung">
+      <option value="aufwand">Aufwand</option>
+      <option value="ertrag">Ertrag</option>
+    </optgroup>`;
+
+  container.innerHTML = currentSort.positionen.map((p, i) => `
+    <div class="sort-item">
+      <div class="sort-name">${p.name}</div>
+      <div class="sort-betrag">${fmtShort(p.betrag)}</div>
+      <div class="sort-sel-wrap">
+        <select id="sort-sel-${i}">${opts}</select>
+      </div>
+      <div class="sort-chk" id="sort-chk-${i}"></div>
+    </div>
+  `).join('');
+}
+
+function buildPreview() {
+  const p = currentSort.positionen;
+  const bycat = (cat) => p.filter(x => x.cat === cat);
+  const sum = (arr) => arr.reduce((s, x) => s + x.betrag, 0);
+  const entries = (arr) => arr.map(x => `<div class="sort-entry"><span class="se-name">${x.name}</span><span class="se-val">${fmtShort(x.betrag)}</span></div>`).join('');
+
+  const uv = bycat('aktiv-uv'), av = bycat('aktiv-av');
+  const fk = bycat('passiv-fk'), ek = bycat('passiv-ek');
+  const aufw = bycat('aufwand'), ertr = bycat('ertrag');
+  const gewinn = currentSort.gewinn;
+  const totalA = sum(uv) + sum(av);
+
+  return `
+    <div class="sort-box">
+      <div class="sort-box-header bilanz">Bilanz<span>${fmtShort(totalA)}</span></div>
+      <div class="sort-sub">Umlaufvermögen</div>${entries(uv)}
+      <div class="sort-sub">Anlagevermögen</div>${entries(av)}
+      <div class="sort-total"><span>Total Aktiven</span><span>${fmtShort(totalA)}</span></div>
+      <div class="sort-sub">Fremdkapital</div>${entries(fk)}
+      <div class="sort-sub">Eigenkapital</div>${entries(ek)}
+      ${gewinn >= 0
+        ? `<div class="sort-entry"><span class="se-name">+ Gewinn</span><span class="se-val" style="color:var(--green)">${fmtShort(gewinn)}</span></div>`
+        : `<div class="sort-entry"><span class="se-name">− Verlust</span><span class="se-val" style="color:var(--red)">${fmtShort(Math.abs(gewinn))}</span></div>`}
+      <div class="sort-total"><span>Total Passiven</span><span>${fmtShort(totalA)}</span></div>
+    </div>
+    <div class="sort-box">
+      <div class="sort-box-header er">Erfolgsrechnung</div>
+      <div class="sort-sub">Aufwand</div>${entries(aufw)}
+      <div class="sort-total"><span>Total Aufwand</span><span>${fmtShort(sum(aufw))}</span></div>
+      <div class="sort-sub">Ertrag</div>${entries(ertr)}
+      <div class="sort-total"><span>Total Ertrag</span><span>${fmtShort(sum(ertr))}</span></div>
+      <div class="sort-gewinn ${gewinn >= 0 ? 'pos' : 'neg'}">${gewinn >= 0 ? 'Gewinn' : 'Verlust'}: CHF ${fmtShort(Math.abs(gewinn))}</div>
+    </div>`;
+}
+
+function checkSortieren() {
+  if (!currentSort) return;
+  let allCorrect = true;
+  let wrongCount = 0;
+
+  currentSort.positionen.forEach((p, i) => {
+    const sel = document.getElementById('sort-sel-' + i);
+    const chk = document.getElementById('sort-chk-' + i);
+
+    if (sel.value === p.cat) {
+      sel.className = 'correct';
+      chk.textContent = '✓'; chk.style.color = 'var(--green)';
+    } else {
+      sel.className = 'wrong';
+      chk.textContent = '✗'; chk.style.color = 'var(--red)';
+      allCorrect = false;
+      wrongCount++;
+    }
+  });
+
+  const fb = document.getElementById('sort-feedback');
+  if (allCorrect) {
+    sortTotal++; sortSolved++;
+    fb.className = 'feedback-box success';
+    fb.textContent = 'Alle Positionen korrekt zugeordnet!';
+    document.getElementById('sort-preview').innerHTML = buildPreview();
+    document.getElementById('sort-preview').style.display = '';
+    document.getElementById('sort-check-btn').style.display = 'none';
+    document.getElementById('sort-next-btn').style.display = '';
+    document.getElementById('sort-learn-btn').style.display = '';
+    document.getElementById('sort-show-btn').style.display = 'none';
+  } else {
+    fb.className = 'feedback-box error';
+    fb.innerHTML = wrongCount + ' Position' + (wrongCount > 1 ? 'en' : '') + ' falsch zugeordnet. Tipp: Aktiven = Vermögenswerte, Passiven = Schulden + EK, Aufwand/Ertrag = ER.';
+  }
+
+  document.getElementById('sort-score-display').textContent = sortSolved + ' / ' + sortTotal;
+}
+
+function showSortierenSolution() {
+  if (!currentSort) return;
+  sortTotal++;
+
+  currentSort.positionen.forEach((p, i) => {
+    const sel = document.getElementById('sort-sel-' + i);
+    const chk = document.getElementById('sort-chk-' + i);
+    sel.value = p.cat;
+    sel.className = 'hint';
+    chk.textContent = '→'; chk.style.color = 'var(--orange)';
+  });
+
+  document.getElementById('sort-preview').innerHTML = buildPreview();
+  document.getElementById('sort-preview').style.display = '';
+
+  const fb = document.getElementById('sort-feedback');
+  fb.className = 'feedback-box error';
+  fb.innerHTML = '<strong>Lösung angezeigt.</strong> Merke: Kontenklassen 1xxx = Aktiv, 2xxx = Passiv, 3xxx = Ertrag, 4-6xxx = Aufwand.';
+
+  document.getElementById('sort-check-btn').style.display = 'none';
+  document.getElementById('sort-next-btn').style.display = '';
+  document.getElementById('sort-learn-btn').style.display = '';
+  document.getElementById('sort-show-btn').style.display = 'none';
+  document.getElementById('sort-score-display').textContent = sortSolved + ' / ' + sortTotal;
 }
 </script>
 </body>
