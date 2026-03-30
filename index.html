@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3-stufige Erfolgsrechnung</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f0f2f5;--card:#fff;--text:#1a2332;--text2:#64748b;--accent:#3b82f6;--green:#059669;--red:#dc2626;--orange:#d97706;--border:#e2e8f0;--input-bg:#f8fafc;--hover:#f1f5f9;--shadow:0 1px 3px rgba(0,0,0,.08)}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.nav{background:linear-gradient(165deg,#0a0c10,#141820 40%,#1a2332 70%,#0d1018);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.nav h1{color:#fff;font-size:1.2rem;font-weight:700}
+.nav span{color:#94a3b8;font-size:.8rem}
+.nav-right{display:flex;gap:8px}
+.nav-btn{background:rgba(255,255,255,.1);border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.82rem;transition:background .2s}
+.nav-btn:hover{background:rgba(255,255,255,.2)}
+.nav-btn.active{background:var(--accent)}
+
+.container{max-width:900px;margin:0 auto;padding:24px 16px 80px}
+
+.card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+.card-header{padding:16px 20px;font-weight:700;font-size:.95rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-header .step{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0}
+.card-body{padding:16px 20px}
+
+/* Rechner rows */
+.row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.row-label{flex:1;font-size:.88rem;color:var(--text)}
+.row-label small{color:var(--text2);font-size:.75rem;display:block;margin-top:2px}
+.row-sign{font-size:1rem;font-weight:700;width:20px;text-align:center;color:var(--text2);flex-shrink:0}
+.row-input{width:140px;flex-shrink:0}
+.row-input input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:.9rem;background:var(--input-bg);text-align:right;outline:none;transition:border .2s}
+.row-input input:focus{border-color:var(--accent)}
+
+.result-row{display:flex;align-items:center;gap:12px;padding:12px 0}
+.result-row .row-label{font-weight:700;font-size:.95rem}
+.result-value{font-size:1.1rem;font-weight:800;width:140px;text-align:right;flex-shrink:0}
+.result-value.positive{color:var(--green)}
+.result-value.negative{color:var(--red)}
+.result-value.zero{color:var(--text2)}
+
+.divider{height:2px;background:var(--border);margin:4px 0}
+.double-line{border-top:3px double var(--text);margin:8px 0 4px;width:140px;margin-left:auto}
+
+.summary{background:linear-gradient(135deg,#1a2332,#0f172a);color:#fff;border-radius:14px;padding:24px;margin-top:24px;text-align:center}
+.summary h3{font-size:.85rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.summary .big{font-size:2rem;font-weight:800}
+.summary .big.positive{color:#34d399}
+.summary .big.negative{color:#f87171}
+.summary .big.zero{color:#94a3b8}
+.summary .detail{display:flex;justify-content:center;gap:24px;margin-top:16px;font-size:.82rem;color:#94a3b8}
+.summary .detail span{display:flex;align-items:center;gap:6px}
+
+.info-box{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:.82rem;color:var(--text2);line-height:1.6}
+.info-box strong{color:var(--text);font-weight:600}
+
+.reset-bar{text-align:center;margin-top:16px}
+.reset-btn{background:none;border:1px solid var(--border);color:var(--text2);padding:8px 20px;border-radius:8px;cursor:pointer;font-size:.82rem;transition:all .2s}
+.reset-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* ===== AUFGABEN ===== */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+
+/* Saldobilanz / Kontenliste */
+.konten-card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.konten-header{padding:14px 18px;font-weight:700;font-size:.9rem;border-bottom:1px solid var(--border);background:var(--input-bg);display:flex;align-items:center;gap:8px}
+.konten-header .badge{background:var(--accent);color:#fff;font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:600}
+.konto-row{display:flex;align-items:center;padding:8px 18px;border-bottom:1px solid var(--border);font-size:.84rem;gap:8px;cursor:pointer;transition:all .15s;user-select:none}
+.konto-row:last-child{border-bottom:none}
+.konto-row:hover{background:var(--hover)}
+.konto-row.checked{opacity:.4;text-decoration:line-through}
+.konto-row.checked .konto-check{background:var(--green);border-color:var(--green);color:#fff}
+.konto-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;transition:all .15s;color:transparent}
+.konto-nr{color:var(--text2);width:42px;font-size:.75rem;font-weight:600;flex-shrink:0}
+.konto-name{flex:1}
+.konto-betrag{font-weight:700;text-align:right;min-width:90px}
+
+/* ER Eingabe */
+.er-card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.er-header{padding:14px 18px;font-weight:700;font-size:.9rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.er-section{padding:6px 18px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);background:var(--input-bg);border-bottom:1px solid var(--border)}
+
+.er-row{display:flex;align-items:center;gap:6px;padding:7px 18px;border-bottom:1px solid var(--border)}
+.er-row:last-child{border-bottom:none}
+.er-sign{width:18px;font-weight:700;font-size:.9rem;text-align:center;color:var(--text2);flex-shrink:0}
+.er-label{flex:1;font-size:.84rem}
+.er-input{width:120px;flex-shrink:0}
+.er-input input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:.85rem;text-align:right;outline:none;background:var(--input-bg);transition:border .2s}
+.er-input input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.er-input input.correct{border-color:var(--green);background:#f0fdf4}
+.er-input input.wrong{border-color:var(--red);background:#fef2f2}
+.er-input input.hint{border-color:var(--orange);background:#fffbeb}
+.check-icon{width:22px;text-align:center;font-size:.9rem;flex-shrink:0}
+.field-actions{display:flex;gap:3px;flex-shrink:0}
+.field-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s;padding:0}
+.field-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--input-bg)}
+.field-btn.tipp-btn:hover{border-color:var(--orange);color:var(--orange)}
+.field-btn.solve-btn:hover{border-color:var(--green);color:var(--green)}
+.er-final .field-btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#94a3b8}
+.er-final .field-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+
+.tipp-popup{display:none;position:absolute;right:0;top:calc(100% + 6px);width:320px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);padding:12px 14px;font-size:.8rem;line-height:1.55;color:var(--text);z-index:50}
+.tipp-popup.show{display:block}
+.tipp-popup strong{font-weight:700;color:var(--text)}
+.tipp-popup .close-tipp{position:absolute;top:6px;right:8px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:1rem;padding:2px}
+.er-row{position:relative}
+
+.er-subtotal{background:var(--input-bg)}
+.er-subtotal .er-label{font-weight:700}
+.er-subtotal .er-input input{border-color:var(--accent);background:#eff6ff;font-weight:700}
+.er-subtotal .er-input input.correct{border-color:var(--green);background:#f0fdf4}
+.er-subtotal .er-input input.wrong{border-color:var(--red);background:#fef2f2}
+
+.er-final{background:linear-gradient(135deg,#1a2332,#0f172a)}
+.er-final .er-label{color:#fff;font-weight:700}
+.er-final .er-sign{color:#94a3b8}
+.er-final .er-input input{background:#0f172a;color:#fff;border-color:#60a5fa;font-weight:700}
+.er-final .er-input input.correct{border-color:var(--green);background:#064e3b}
+.er-final .er-input input.wrong{border-color:var(--red);background:#7f1d1d}
+.er-final .check-icon{color:#fff}
+
+.task-actions{display:flex;gap:8px;margin-top:16px;justify-content:center}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{opacity:.9}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--text2)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+
+.score-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--input-bg);border-radius:10px;margin-bottom:16px;font-size:.85rem}
+.score-bar .score{font-weight:700;color:var(--accent)}
+
+.difficulty-selector{display:flex;gap:8px;margin-bottom:20px}
+.diff-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:none;cursor:pointer;font-size:.8rem;color:var(--text2);transition:all .2s}
+.diff-btn:hover{border-color:var(--accent)}
+.diff-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.feedback-box{margin-top:12px;padding:14px 18px;border-radius:10px;font-size:.84rem;line-height:1.5;display:none}
+.feedback-box.success{display:block;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.feedback-box.error{display:block;background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.feedback-box strong{font-weight:700}
+.feedback-box br+br{content:'';display:block;margin:4px 0}
+
+/* ===== AUSWIRKUNGEN TAB ===== */
+.aw-context{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:.84rem;color:var(--text);line-height:1.6}
+.aw-context strong{font-weight:700}
+
+.aw-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.aw-table th{background:var(--input-bg);padding:10px 12px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);border-bottom:2px solid var(--border);text-align:center}
+.aw-table th:first-child{text-align:left;width:40px}
+.aw-table th:nth-child(2){text-align:left}
+.aw-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:.84rem;text-align:center;vertical-align:middle}
+.aw-table tr:last-child td{border-bottom:none}
+.aw-table td:first-child{color:var(--text2);font-weight:600;width:40px;text-align:center}
+.aw-table td:nth-child(2){text-align:left}
+.aw-table tr:hover{background:var(--hover)}
+
+.aw-toggle{display:flex;gap:2px;justify-content:center}
+.aw-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:.85rem;font-weight:700;color:var(--text2);transition:all .15s;padding:0;display:flex;align-items:center;justify-content:center}
+.aw-btn:hover{border-color:var(--accent);color:var(--accent)}
+.aw-btn.selected-plus{background:#dcfce7;border-color:var(--green);color:var(--green)}
+.aw-btn.selected-minus{background:#fef2f2;border-color:var(--red);color:var(--red)}
+.aw-btn.selected-zero{background:#f0f2f5;border-color:var(--text2);color:var(--text2)}
+.aw-btn.correct{box-shadow:0 0 0 2px var(--green);opacity:1}
+.aw-btn.wrong-selected{box-shadow:0 0 0 2px var(--red);opacity:1}
+
+.aw-check{font-size:.9rem;width:24px;text-align:center}
+
+.aw-explain{display:none;padding:8px 12px 12px;font-size:.8rem;color:var(--text2);line-height:1.5;background:#fffbeb;border-bottom:1px solid var(--border)}
+.aw-explain.show{display:table-row}
+.aw-explain td{text-align:left !important;padding:8px 12px 12px}
+
+.aw-legend{display:flex;gap:16px;margin-bottom:16px;font-size:.8rem;color:var(--text2)}
+.aw-legend span{display:flex;align-items:center;gap:4px}
+.aw-legend .lg{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+.lg-plus{background:#dcfce7;color:var(--green)}
+.lg-minus{background:#fef2f2;color:var(--red)}
+.lg-zero{background:#f0f2f5;color:var(--text2)}
+
+/* ===== BUCHUNGSSÄTZE TAB ===== */
+.bs-card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;margin-bottom:16px}
+.bs-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.bs-header .bs-nr{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0}
+.bs-header .bs-text{flex:1;font-size:.9rem;line-height:1.5}
+.bs-header .bs-betrag{font-weight:700;color:var(--accent);font-size:.95rem;flex-shrink:0}
+.bs-body{padding:16px 20px}
+.bs-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bs-row:last-child{margin-bottom:0}
+.bs-label{font-size:.82rem;font-weight:600;color:var(--text2);width:40px;flex-shrink:0;text-align:right}
+.bs-select-wrap{flex:1;position:relative}
+.bs-select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:.85rem;background:var(--input-bg);outline:none;appearance:none;cursor:pointer;transition:border .2s;font-family:'Inter',sans-serif}
+.bs-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.bs-select.correct{border-color:var(--green);background:#f0fdf4}
+.bs-select.wrong{border-color:var(--red);background:#fef2f2}
+.bs-select.hint{border-color:var(--orange);background:#fffbeb}
+.bs-select-arrow{position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text2);font-size:.7rem}
+.bs-an{font-size:.85rem;font-weight:700;color:var(--text2);text-align:center;padding:2px 0}
+.bs-check{width:24px;flex-shrink:0;text-align:center;font-size:.95rem}
+.bs-explain-box{margin-top:10px;padding:10px 14px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;font-size:.8rem;color:var(--text);line-height:1.5;display:none}
+.bs-explain-box.show{display:block}
+.bs-explain-box strong{font-weight:700}
+.bs-field-btns{display:flex;gap:3px;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div>
+    <h1>3-stufige Erfolgsrechnung</h1>
+    <span>Rechner & Trainer</span>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" id="tab-rechner" onclick="switchTab('rechner')">Lernen</button>
+    <button class="nav-btn" id="tab-ueben" onclick="switchTab('ueben')">Zuordnen</button>
+    <button class="nav-btn" id="tab-auswirkung" onclick="switchTab('auswirkung')">Auswirkungen</button>
+    <button class="nav-btn" id="tab-buchung" onclick="switchTab('buchung')">Buchungssätze</button>
+  </div>
+</div>
+
+<!-- ========== RECHNER TAB ========== -->
+<div class="container" id="view-rechner">
+  <div class="info-box">
+    <strong>3-stufige Erfolgsrechnung:</strong> Nettoerlös → Bruttoergebnis → Betriebsergebnis → Unternehmensergebnis. Gib die Werte ein, die Zwischenergebnisse werden automatisch berechnet.
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="step">1</div>Bruttoergebnis</div>
+    <div class="card-body">
+      <div class="row">
+        <div class="row-sign"></div>
+        <div class="row-label">Nettoerlös<small>Umsatz abzgl. Erlösminderungen</small></div>
+        <div class="row-input"><input type="text" id="nettoumsatz" oninput="calc()" placeholder="0.00"></div>
+      </div>
+      <div class="row">
+        <div class="row-sign" style="color:var(--red)">−</div>
+        <div class="row-label">Warenaufwand<small>Einkauf, Bestandesänderungen</small></div>
+        <div class="row-input"><input type="text" id="warenaufwand" oninput="calc()" placeholder="0.00"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="result-row"><div class="row-sign">=</div><div class="row-label">Bruttoergebnis</div><div class="result-value" id="brutto">0.00</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="step">2</div>Betriebsergebnis (EBIT)</div>
+    <div class="card-body">
+      <div class="row"><div class="row-sign" style="color:var(--red)">−</div><div class="row-label">Personalaufwand<small>Löhne, Sozialleistungen</small></div><div class="row-input"><input type="text" id="personal" oninput="calc()" placeholder="0.00"></div></div>
+      <div class="row"><div class="row-sign" style="color:var(--red)">−</div><div class="row-label">Raumaufwand<small>Miete, Unterhalt</small></div><div class="row-input"><input type="text" id="raum" oninput="calc()" placeholder="0.00"></div></div>
+      <div class="row"><div class="row-sign" style="color:var(--red)">−</div><div class="row-label">Abschreibungen</div><div class="row-input"><input type="text" id="abschreibungen" oninput="calc()" placeholder="0.00"></div></div>
+      <div class="row"><div class="row-sign" style="color:var(--red)">−</div><div class="row-label">Übriger Betriebsaufwand<small>Verwaltung, Werbung, Versicherung</small></div><div class="row-input"><input type="text" id="uebrig" oninput="calc()" placeholder="0.00"></div></div>
+      <div class="divider"></div>
+      <div class="result-row"><div class="row-sign">=</div><div class="row-label">Betriebsergebnis (EBIT)</div><div class="result-value" id="ebit">0.00</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="step">3</div>Unternehmensergebnis</div>
+    <div class="card-body">
+      <div class="row"><div class="row-sign" style="color:var(--green)">+</div><div class="row-label">Finanzertrag<small>Zinsertrag, Beteiligungsertrag</small></div><div class="row-input"><input type="text" id="finanzertrag" oninput="calc()" placeholder="0.00"></div></div>
+      <div class="row"><div class="row-sign" style="color:var(--red)">−</div><div class="row-label">Finanzaufwand<small>Zinsaufwand, Bankgebühren</small></div><div class="row-input"><input type="text" id="finanzaufwand" oninput="calc()" placeholder="0.00"></div></div>
+      <div class="row"><div class="row-sign" style="color:var(--green)">+</div><div class="row-label">A.o. Ertrag<small>Einmalige, betriebsfremde Erträge</small></div><div class="row-input"><input type="text" id="aoertrag" oninput="calc()" placeholder="0.00"></div></div>
+      <div class="row"><div class="row-sign" style="color:var(--red)">−</div><div class="row-label">A.o. Aufwand<small>Einmalige, betriebsfremde Aufwände</small></div><div class="row-input"><input type="text" id="aoaufwand" oninput="calc()" placeholder="0.00"></div></div>
+      <div class="divider"></div>
+      <div class="result-row"><div class="row-sign">=</div><div class="row-label">Unternehmensergebnis</div><div class="result-value" id="ergebnis">0.00</div></div>
+      <div class="double-line"></div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <h3>Unternehmensergebnis</h3>
+    <div class="big zero" id="summary-value">CHF 0.00</div>
+    <div class="detail">
+      <span>Brutto: <strong id="s-brutto">0.00</strong></span>
+      <span>EBIT: <strong id="s-ebit">0.00</strong></span>
+      <span>Ergebnis: <strong id="s-ergebnis">0.00</strong></span>
+    </div>
+  </div>
+  <div class="reset-bar"><button class="reset-btn" onclick="resetAll()">Alle Felder zurücksetzen</button></div>
+</div>
+
+<!-- ========== AUFGABEN TAB ========== -->
+<div class="container" id="view-ueben" style="display:none">
+
+  <div class="score-bar">
+    <span>Richtig:</span>
+    <span class="score" id="score-display">0 / 0</span>
+    <span style="margin-left:auto;color:var(--text2)">Schwierigkeit:</span>
+  </div>
+
+  <div class="difficulty-selector">
+    <button class="diff-btn active" onclick="setDifficulty('leicht')">Leicht</button>
+    <button class="diff-btn" onclick="setDifficulty('mittel')">Mittel</button>
+    <button class="diff-btn" onclick="setDifficulty('schwer')">Schwer</button>
+  </div>
+
+  <div class="two-col">
+    <!-- Links: Kontenliste -->
+    <div>
+      <div class="konten-card">
+        <div class="konten-header">Saldobilanz <span class="badge" id="firma-name">Müller AG</span></div>
+        <div id="konten-list"></div>
+      </div>
+    </div>
+
+    <!-- Rechts: ER ausfüllen -->
+    <div>
+      <div class="er-card">
+        <div class="er-header">Erfolgsrechnung aufstellen</div>
+
+        <div class="er-section">Stufe 1 - Bruttoergebnis</div>
+        <div class="er-row" data-field="netto">
+          <div class="er-sign"></div>
+          <div class="er-label">Nettoerlös</div>
+          <div class="er-input"><input type="text" id="t-netto" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('netto')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('netto')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-netto"></div>
+          <div class="tipp-popup" id="tipp-netto"></div>
+        </div>
+        <div class="er-row" data-field="waren">
+          <div class="er-sign" style="color:var(--red)">−</div>
+          <div class="er-label">Warenaufwand</div>
+          <div class="er-input"><input type="text" id="t-waren" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('waren')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('waren')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-waren"></div>
+          <div class="tipp-popup" id="tipp-waren"></div>
+        </div>
+        <div class="er-row er-subtotal" data-field="brutto">
+          <div class="er-sign">=</div>
+          <div class="er-label">Bruttoergebnis</div>
+          <div class="er-input"><input type="text" id="t-brutto" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('brutto')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('brutto')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-brutto"></div>
+          <div class="tipp-popup" id="tipp-brutto"></div>
+        </div>
+
+        <div class="er-section">Stufe 2 - Betriebsergebnis</div>
+        <div class="er-row" data-field="personal">
+          <div class="er-sign" style="color:var(--red)">−</div>
+          <div class="er-label">Personalaufwand</div>
+          <div class="er-input"><input type="text" id="t-personal" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('personal')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('personal')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-personal"></div>
+          <div class="tipp-popup" id="tipp-personal"></div>
+        </div>
+        <div class="er-row" data-field="raum">
+          <div class="er-sign" style="color:var(--red)">−</div>
+          <div class="er-label">Raumaufwand</div>
+          <div class="er-input"><input type="text" id="t-raum" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('raum')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('raum')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-raum"></div>
+          <div class="tipp-popup" id="tipp-raum"></div>
+        </div>
+        <div class="er-row" data-field="abschr">
+          <div class="er-sign" style="color:var(--red)">−</div>
+          <div class="er-label">Abschreibungen</div>
+          <div class="er-input"><input type="text" id="t-abschr" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('abschr')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('abschr')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-abschr"></div>
+          <div class="tipp-popup" id="tipp-abschr"></div>
+        </div>
+        <div class="er-row" data-field="uebrig">
+          <div class="er-sign" style="color:var(--red)">−</div>
+          <div class="er-label">Übriger Betr.aufwand</div>
+          <div class="er-input"><input type="text" id="t-uebrig" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('uebrig')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('uebrig')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-uebrig"></div>
+          <div class="tipp-popup" id="tipp-uebrig"></div>
+        </div>
+        <div class="er-row er-subtotal" data-field="ebit">
+          <div class="er-sign">=</div>
+          <div class="er-label">Betriebsergebnis</div>
+          <div class="er-input"><input type="text" id="t-ebit" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('ebit')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('ebit')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-ebit"></div>
+          <div class="tipp-popup" id="tipp-ebit"></div>
+        </div>
+
+        <div class="er-section" id="stufe3-header" style="display:none">Stufe 3 - Unternehmensergebnis</div>
+        <div class="er-row" id="row-finE" style="display:none" data-field="finE">
+          <div class="er-sign" style="color:var(--green)">+</div>
+          <div class="er-label">Finanzertrag</div>
+          <div class="er-input"><input type="text" id="t-finE" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('finE')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('finE')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-finE"></div>
+          <div class="tipp-popup" id="tipp-finE"></div>
+        </div>
+        <div class="er-row" id="row-finA" style="display:none" data-field="finA">
+          <div class="er-sign" style="color:var(--red)">−</div>
+          <div class="er-label">Finanzaufwand</div>
+          <div class="er-input"><input type="text" id="t-finA" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('finA')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('finA')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-finA"></div>
+          <div class="tipp-popup" id="tipp-finA"></div>
+        </div>
+        <div class="er-row" id="row-aoE" style="display:none" data-field="aoE">
+          <div class="er-sign" style="color:var(--green)">+</div>
+          <div class="er-label">A.o. Ertrag</div>
+          <div class="er-input"><input type="text" id="t-aoE" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('aoE')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('aoE')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-aoE"></div>
+          <div class="tipp-popup" id="tipp-aoE"></div>
+        </div>
+        <div class="er-row" id="row-aoA" style="display:none" data-field="aoA">
+          <div class="er-sign" style="color:var(--red)">−</div>
+          <div class="er-label">A.o. Aufwand</div>
+          <div class="er-input"><input type="text" id="t-aoA" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('aoA')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('aoA')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-aoA"></div>
+          <div class="tipp-popup" id="tipp-aoA"></div>
+        </div>
+
+        <div class="er-row er-final" data-field="ergebnis">
+          <div class="er-sign">=</div>
+          <div class="er-label">Unternehmensergebnis</div>
+          <div class="er-input"><input type="text" id="t-ergebnis" placeholder="?"></div>
+          <div class="field-actions">
+            <button class="field-btn tipp-btn" onclick="showFieldTipp('ergebnis')" title="Tipp">?</button>
+            <button class="field-btn solve-btn" onclick="solveField('ergebnis')" title="Lösung zeigen">👁</button>
+          </div>
+          <div class="check-icon" id="i-ergebnis"></div>
+          <div class="tipp-popup" id="tipp-ergebnis"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feedback-box" id="feedback"></div>
+
+  <div class="task-actions">
+    <button class="btn btn-primary" id="check-btn" onclick="checkTask()">Prüfen</button>
+    <button class="btn btn-outline" id="next-btn" onclick="generateTask()" style="display:none">Nächste Aufgabe</button>
+    <button class="btn btn-outline" id="learn-btn" onclick="switchTab('rechner')" style="display:none">Nochmals lernen</button>
+    <button class="btn btn-outline" id="show-btn" onclick="showSolution()">Lösung zeigen</button>
+  </div>
+</div>
+
+<!-- ========== AUSWIRKUNGEN TAB ========== -->
+<div class="container" id="view-auswirkung" style="display:none">
+
+  <div class="score-bar">
+    <span>Richtig:</span>
+    <span class="score" id="aw-score-display">0 / 0</span>
+  </div>
+
+  <div class="aw-context" id="aw-context"></div>
+
+  <div class="aw-legend">
+    <span><div class="lg lg-plus">+</div> Zunahme</span>
+    <span><div class="lg lg-minus">−</div> Abnahme</span>
+    <span><div class="lg lg-zero">0</div> Keine Auswirkung</span>
+  </div>
+
+  <table class="aw-table">
+    <thead>
+      <tr>
+        <th>Nr.</th>
+        <th>Vorgang</th>
+        <th>Brutto&shy;gewinn</th>
+        <th>Betriebs&shy;gewinn</th>
+        <th>Unternehmens&shy;gewinn</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="aw-body"></tbody>
+  </table>
+
+  <div class="feedback-box" id="aw-feedback"></div>
+
+  <div class="task-actions">
+    <button class="btn btn-primary" id="aw-check-btn" onclick="checkAuswirkung()">Prüfen</button>
+    <button class="btn btn-outline" id="aw-next-btn" onclick="generateAuswirkung()" style="display:none">Nächste Aufgabe</button>
+    <button class="btn btn-outline" id="aw-learn-btn" onclick="switchTab('rechner')" style="display:none">Nochmals lernen</button>
+    <button class="btn btn-outline" id="aw-show-btn" onclick="showAuswirkungSolution()">Lösung zeigen</button>
+  </div>
+</div>
+
+<!-- ========== BUCHUNGSSÄTZE TAB ========== -->
+<div class="container" id="view-buchung" style="display:none">
+
+  <div class="score-bar">
+    <span>Richtig:</span>
+    <span class="score" id="bs-score-display">0 / 0</span>
+  </div>
+
+  <div class="info-box">
+    <strong>Buchungssätze:</strong> Zu jedem Geschäftsvorfall den korrekten Buchungssatz bilden. Wähle das Soll- und Haben-Konto aus den Dropdown-Menüs.
+  </div>
+
+  <div id="bs-container"></div>
+
+  <div class="feedback-box" id="bs-feedback"></div>
+
+  <div class="task-actions">
+    <button class="btn btn-primary" id="bs-check-btn" onclick="checkBuchung()">Prüfen</button>
+    <button class="btn btn-outline" id="bs-next-btn" onclick="generateBuchung()" style="display:none">Nächste Aufgabe</button>
+    <button class="btn btn-outline" id="bs-learn-btn" onclick="switchTab('rechner')" style="display:none">Nochmals lernen</button>
+    <button class="btn btn-outline" id="bs-show-btn" onclick="showBuchungSolution()">Lösung zeigen</button>
+  </div>
+</div>
+
+<script>
+// ========== RECHNER ==========
+function parseNum(id) {
+  const v = document.getElementById(id).value.replace(/[''']/g, '').replace(',', '.');
+  return parseFloat(v) || 0;
+}
+function fmt(n) {
+  return n.toLocaleString('de-CH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+function fmtShort(n) {
+  return n.toLocaleString('de-CH', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+}
+function setResult(id, val) {
+  const el = document.getElementById(id);
+  el.textContent = fmt(val);
+  el.className = 'result-value ' + (val > 0.005 ? 'positive' : val < -0.005 ? 'negative' : 'zero');
+}
+function calc() {
+  const netto = parseNum('nettoumsatz');
+  const waren = parseNum('warenaufwand');
+  const brutto = netto - waren;
+  const personal = parseNum('personal');
+  const raum = parseNum('raum');
+  const abschr = parseNum('abschreibungen');
+  const uebrig = parseNum('uebrig');
+  const ebit = brutto - personal - raum - abschr - uebrig;
+  const finE = parseNum('finanzertrag');
+  const finA = parseNum('finanzaufwand');
+  const aoE = parseNum('aoertrag');
+  const aoA = parseNum('aoaufwand');
+  const ergebnis = ebit + finE - finA + aoE - aoA;
+  setResult('brutto', brutto);
+  setResult('ebit', ebit);
+  setResult('ergebnis', ergebnis);
+  document.getElementById('s-brutto').textContent = fmt(brutto);
+  document.getElementById('s-ebit').textContent = fmt(ebit);
+  document.getElementById('s-ergebnis').textContent = fmt(ergebnis);
+  const sv = document.getElementById('summary-value');
+  sv.textContent = 'CHF ' + fmt(ergebnis);
+  sv.className = 'big ' + (ergebnis > 0.005 ? 'positive' : ergebnis < -0.005 ? 'negative' : 'zero');
+}
+function resetAll() {
+  document.querySelectorAll('#view-rechner input').forEach(i => i.value = '');
+  calc();
+}
+
+// ========== TABS ==========
+function switchTab(tab) {
+  ['rechner','ueben','auswirkung','buchung'].forEach(t => {
+    document.getElementById('view-' + t).style.display = tab === t ? '' : 'none';
+    document.getElementById('tab-' + t).className = 'nav-btn' + (tab === t ? ' active' : '');
+  });
+  if (tab === 'ueben' && !currentTask) generateTask();
+  if (tab === 'auswirkung' && !currentAw) generateAuswirkung();
+  if (tab === 'buchung' && !currentBs) generateBuchung();
+}
+
+// ========== AUFGABEN ==========
+let currentTask = null;
+let difficulty = 'leicht';
+let solved = 0, total = 0;
+
+function setDifficulty(d) {
+  difficulty = d;
+  document.querySelectorAll('.diff-btn').forEach(b => b.className = 'diff-btn' + (b.textContent.toLowerCase() === d ? ' active' : ''));
+  generateTask();
+}
+
+function rand(min, max, step) {
+  step = step || 1000;
+  const steps = Math.floor((max - min) / step);
+  return min + Math.floor(Math.random() * (steps + 1)) * step;
+}
+
+const firmen = ['Müller AG','Fischer GmbH','Weber & Co.','Schmid Handel AG','Brunner Technik',
+  'Keller Bau AG','Huber Logistik','Steiner Möbel','Berger Textil AG','Meier Food GmbH'];
+
+// KMU Kontenrahmen - Konten die in der Aufgabe vorkommen können
+const kontenPool = {
+  // Klasse 3: Betriebsertrag
+  ertrag: [
+    {nr: '3000', name: 'Warenertrag', cat: 'ertrag'},
+    {nr: '3200', name: 'Dienstleistungsertrag', cat: 'ertrag'},
+    {nr: '3400', name: 'Übriger Ertrag', cat: 'ertrag'},
+    {nr: '3800', name: 'Erlösminderungen', cat: 'erloesminderung'},
+    {nr: '3805', name: 'Skonti', cat: 'erloesminderung'},
+    {nr: '3900', name: 'Bestandesänderungen Halb-/Fertigfabrikate', cat: 'bestand'},
+  ],
+  // Klasse 4: Warenaufwand
+  waren: [
+    {nr: '4000', name: 'Materialaufwand', cat: 'waren'},
+    {nr: '4200', name: 'Handelswarenaufwand', cat: 'waren'},
+    {nr: '4400', name: 'Drittleistungen', cat: 'waren'},
+    {nr: '4900', name: 'Bestandesänderungen Waren', cat: 'waren'},
+  ],
+  // Klasse 5: Personalaufwand
+  personal: [
+    {nr: '5000', name: 'Löhne', cat: 'personal'},
+    {nr: '5200', name: 'Sozialleistungen', cat: 'personal'},
+    {nr: '5800', name: 'Übriger Personalaufwand', cat: 'personal'},
+    {nr: '5700', name: 'Aus- und Weiterbildung', cat: 'personal'},
+  ],
+  // Klasse 6: Übriger Betriebsaufwand
+  betrieb: [
+    {nr: '6000', name: 'Raumaufwand', cat: 'raum'},
+    {nr: '6100', name: 'Unterhalt und Reparaturen', cat: 'uebrig'},
+    {nr: '6200', name: 'Fahrzeugaufwand', cat: 'uebrig'},
+    {nr: '6300', name: 'Sachversicherungen', cat: 'uebrig'},
+    {nr: '6400', name: 'Energieaufwand', cat: 'raum'},
+    {nr: '6500', name: 'Verwaltungsaufwand', cat: 'uebrig'},
+    {nr: '6570', name: 'Informatikaufwand', cat: 'uebrig'},
+    {nr: '6600', name: 'Werbeaufwand', cat: 'uebrig'},
+    {nr: '6800', name: 'Abschreibungen', cat: 'abschr'},
+    {nr: '6900', name: 'Leasing', cat: 'uebrig'},
+  ],
+  // Klasse 7+8: Betriebsfremder / Finanz / A.o.
+  finanz: [
+    {nr: '6950', name: 'Finanzertrag', cat: 'finE'},
+    {nr: '6900', name: 'Zinsertrag', cat: 'finE'},
+    {nr: '6940', name: 'Beteiligungsertrag', cat: 'finE'},
+    {nr: '6950', name: 'Finanzaufwand', cat: 'finA'},
+    {nr: '6960', name: 'Zinsaufwand', cat: 'finA'},
+    {nr: '6970', name: 'Bankspesen', cat: 'finA'},
+  ],
+  ao: [
+    {nr: '7000', name: 'A.o. Liegenschaftsertrag', cat: 'aoE'},
+    {nr: '7010', name: 'A.o. Ertrag Veräusserung AV', cat: 'aoE'},
+    {nr: '7500', name: 'A.o. Aufwand', cat: 'aoA'},
+    {nr: '8000', name: 'A.o. Abschreibung', cat: 'aoA'},
+  ]
+};
+
+function pick(arr, n) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
+
+function generateTask() {
+  const firma = firmen[Math.floor(Math.random() * firmen.length)];
+  document.getElementById('firma-name').textContent = firma;
+
+  // Konten auswählen und Beträge generieren
+  let konten = [];
+  let answers = {};
+
+  if (difficulty === 'leicht') {
+    // Wenige Konten, klare Zuordnung
+    const ertrKonten = pick(kontenPool.ertrag.filter(k => k.cat === 'ertrag'), 1);
+    const warenKonten = pick(kontenPool.waren, 1);
+    const persKonten = pick(kontenPool.personal, 2);
+    const raumKonten = [{nr: '6000', name: 'Raumaufwand', cat: 'raum'}];
+    const abschrKonten = [{nr: '6800', name: 'Abschreibungen', cat: 'abschr'}];
+    const uebrigKonten = pick(kontenPool.betrieb.filter(k => k.cat === 'uebrig'), 1);
+
+    ertrKonten.forEach(k => konten.push({...k, betrag: rand(200000, 500000, 10000)}));
+    warenKonten.forEach(k => konten.push({...k, betrag: rand(80000, 200000, 5000)}));
+    persKonten.forEach(k => konten.push({...k, betrag: rand(15000, 60000, 5000)}));
+    raumKonten.forEach(k => konten.push({...k, betrag: rand(10000, 30000, 1000)}));
+    abschrKonten.forEach(k => konten.push({...k, betrag: rand(5000, 20000, 1000)}));
+    uebrigKonten.forEach(k => konten.push({...k, betrag: rand(3000, 15000, 1000)}));
+
+  } else if (difficulty === 'mittel') {
+    // Mehr Konten, Erlösminderungen, Finanz
+    const ertrKonten = pick(kontenPool.ertrag.filter(k => k.cat === 'ertrag'), 2);
+    const erlMin = pick(kontenPool.ertrag.filter(k => k.cat === 'erloesminderung'), 1);
+    const warenKonten = pick(kontenPool.waren, 2);
+    const persKonten = pick(kontenPool.personal, 2);
+    const raumKonten = pick(kontenPool.betrieb.filter(k => k.cat === 'raum'), 1);
+    const abschrKonten = [{nr: '6800', name: 'Abschreibungen', cat: 'abschr'}];
+    const uebrigKonten = pick(kontenPool.betrieb.filter(k => k.cat === 'uebrig'), 2);
+    const finEKonten = pick(kontenPool.finanz.filter(k => k.cat === 'finE'), 1);
+    const finAKonten = pick(kontenPool.finanz.filter(k => k.cat === 'finA'), 1);
+
+    ertrKonten.forEach(k => konten.push({...k, betrag: rand(150000, 400000, 10000)}));
+    erlMin.forEach(k => konten.push({...k, betrag: rand(5000, 20000, 1000)}));
+    warenKonten.forEach(k => konten.push({...k, betrag: rand(50000, 150000, 5000)}));
+    persKonten.forEach(k => konten.push({...k, betrag: rand(20000, 80000, 5000)}));
+    raumKonten.forEach(k => konten.push({...k, betrag: rand(8000, 30000, 1000)}));
+    abschrKonten.forEach(k => konten.push({...k, betrag: rand(8000, 25000, 1000)}));
+    uebrigKonten.forEach(k => konten.push({...k, betrag: rand(3000, 20000, 1000)}));
+    finEKonten.forEach(k => konten.push({...k, betrag: rand(1000, 8000, 500)}));
+    finAKonten.forEach(k => konten.push({...k, betrag: rand(2000, 12000, 500)}));
+
+  } else {
+    // Viele Konten, alles dabei
+    const ertrKonten = pick(kontenPool.ertrag.filter(k => k.cat === 'ertrag'), 2);
+    const erlMin = pick(kontenPool.ertrag.filter(k => k.cat === 'erloesminderung'), Math.random() > 0.5 ? 2 : 1);
+    const warenKonten = pick(kontenPool.waren, 2);
+    const persKonten = pick(kontenPool.personal, 3);
+    const raumKonten = pick(kontenPool.betrieb.filter(k => k.cat === 'raum'), 2);
+    const abschrKonten = [{nr: '6800', name: 'Abschreibungen', cat: 'abschr'}];
+    const uebrigKonten = pick(kontenPool.betrieb.filter(k => k.cat === 'uebrig'), 3);
+    const finEKonten = pick(kontenPool.finanz.filter(k => k.cat === 'finE'), 1);
+    const finAKonten = pick(kontenPool.finanz.filter(k => k.cat === 'finA'), 2);
+    const aoEKonten = pick(kontenPool.ao.filter(k => k.cat === 'aoE'), 1);
+    const aoAKonten = pick(kontenPool.ao.filter(k => k.cat === 'aoA'), 1);
+
+    ertrKonten.forEach(k => konten.push({...k, betrag: rand(200000, 600000, 10000)}));
+    erlMin.forEach(k => konten.push({...k, betrag: rand(5000, 30000, 1000)}));
+    warenKonten.forEach(k => konten.push({...k, betrag: rand(60000, 200000, 5000)}));
+    persKonten.forEach(k => konten.push({...k, betrag: rand(15000, 100000, 5000)}));
+    raumKonten.forEach(k => konten.push({...k, betrag: rand(8000, 35000, 1000)}));
+    abschrKonten.forEach(k => konten.push({...k, betrag: rand(10000, 40000, 1000)}));
+    uebrigKonten.forEach(k => konten.push({...k, betrag: rand(3000, 25000, 1000)}));
+    finEKonten.forEach(k => konten.push({...k, betrag: rand(1000, 15000, 500)}));
+    finAKonten.forEach(k => konten.push({...k, betrag: rand(2000, 18000, 500)}));
+    aoEKonten.forEach(k => konten.push({...k, betrag: rand(2000, 20000, 500)}));
+    aoAKonten.forEach(k => konten.push({...k, betrag: rand(1000, 15000, 500)}));
+  }
+
+  // Berechne korrekte Werte
+  const sum = (cat) => konten.filter(k => k.cat === cat).reduce((s, k) => s + k.betrag, 0);
+
+  const nettoerloes = sum('ertrag') - sum('erloesminderung') + sum('bestand');
+  const warenaufwand = sum('waren');
+  const bruttoergebnis = nettoerloes - warenaufwand;
+
+  const personalaufwand = sum('personal');
+  const raumaufwand = sum('raum');
+  const abschreibungen = sum('abschr');
+  const uebrigerAufwand = sum('uebrig');
+  const ebit = bruttoergebnis - personalaufwand - raumaufwand - abschreibungen - uebrigerAufwand;
+
+  const finanzertrag = sum('finE');
+  const finanzaufwand = sum('finA');
+  const aoErtrag = sum('aoE');
+  const aoAufwand = sum('aoA');
+  const ergebnis = ebit + finanzertrag - finanzaufwand + aoErtrag - aoAufwand;
+
+  answers = {
+    netto: nettoerloes, waren: warenaufwand, brutto: bruttoergebnis,
+    personal: personalaufwand, raum: raumaufwand, abschr: abschreibungen, uebrig: uebrigerAufwand, ebit,
+    finE: finanzertrag, finA: finanzaufwand, aoE: aoErtrag, aoA: aoAufwand, ergebnis
+  };
+
+  // Konten nach Nummer sortieren und mischen (damit man nachdenken muss)
+  konten.sort(() => Math.random() - 0.5);
+
+  currentTask = {firma, konten, answers, difficulty};
+
+  // Render Konten
+  renderKonten();
+
+  // Stufe 3 Zeilen ein/ausblenden
+  const hasFin = finanzertrag > 0 || finanzaufwand > 0;
+  const hasAo = aoErtrag > 0 || aoAufwand > 0;
+  document.getElementById('stufe3-header').style.display = (hasFin || hasAo) ? '' : 'none';
+  document.getElementById('row-finE').style.display = finanzertrag > 0 ? '' : 'none';
+  document.getElementById('row-finA').style.display = finanzaufwand > 0 ? '' : 'none';
+  document.getElementById('row-aoE').style.display = aoErtrag > 0 ? '' : 'none';
+  document.getElementById('row-aoA').style.display = aoAufwand > 0 ? '' : 'none';
+
+  // Felder leeren
+  ['netto','waren','brutto','personal','raum','abschr','uebrig','ebit','finE','finA','aoE','aoA','ergebnis'].forEach(k => {
+    const inp = document.getElementById('t-' + k);
+    if (inp) { inp.value = ''; inp.className = ''; }
+    const icon = document.getElementById('i-' + k);
+    if (icon) { icon.textContent = ''; }
+  });
+
+  document.getElementById('feedback').className = 'feedback-box';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('check-btn').style.display = '';
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('learn-btn').style.display = 'none';
+  document.getElementById('show-btn').style.display = '';
+}
+
+function renderKonten() {
+  const list = document.getElementById('konten-list');
+  list.innerHTML = currentTask.konten.map((k, i) =>
+    `<div class="konto-row" onclick="toggleKonto(this)">
+      <div class="konto-check">✓</div>
+      <div class="konto-nr">${k.nr}</div>
+      <div class="konto-name">${k.name}</div>
+      <div class="konto-betrag">${fmtShort(k.betrag)}</div>
+    </div>`
+  ).join('');
+}
+
+function toggleKonto(el) {
+  el.classList.toggle('checked');
+}
+
+function parseTaskVal(id) {
+  const el = document.getElementById('t-' + id);
+  if (!el) return 0;
+  const v = el.value.replace(/[''']/g, '').replace(',', '.');
+  return parseFloat(v) || 0;
+}
+
+// Alle Tipp-Popups schliessen
+function closeAllTipps() {
+  document.querySelectorAll('.tipp-popup').forEach(p => p.classList.remove('show'));
+}
+
+// Tipp für einzelnes Feld anzeigen (ohne Lösung, nur Hinweis welche Konten)
+function showFieldTipp(key) {
+  if (!currentTask) return;
+  closeAllTipps();
+  const popup = document.getElementById('tipp-' + key);
+  if (!popup) return;
+
+  const tippText = getFieldHint(key);
+  popup.innerHTML = tippText + '<button class="close-tipp" onclick="closeAllTipps()">×</button>';
+  popup.classList.add('show');
+}
+
+// Hinweis ohne Beträge/Lösung - nur welche Konten relevant sind
+function getFieldHint(key) {
+  const kk = currentTask.konten;
+  switch(key) {
+    case 'netto': {
+      const ertr = kk.filter(k => k.cat === 'ertrag');
+      const erl = kk.filter(k => k.cat === 'erloesminderung');
+      let t = '<strong>Welche Konten?</strong><br>Erträge der Klasse 3xxx zusammenzählen';
+      if (erl.length) t += ', dann Erlösminderungen (38xx) abziehen';
+      t += '.<br><br><strong>Konten:</strong> ' + ertr.map(k => k.nr + ' ' + k.name).join(', ');
+      if (erl.length) t += '<br><strong>Abzug:</strong> ' + erl.map(k => k.nr + ' ' + k.name).join(', ');
+      return t;
+    }
+    case 'waren':
+      return '<strong>Welche Konten?</strong><br>Alle Konten der Klasse <strong>4xxx</strong> zusammenzählen.<br><br><strong>Konten:</strong> ' +
+        kk.filter(k => k.cat === 'waren').map(k => k.nr + ' ' + k.name).join(', ');
+    case 'brutto':
+      return '<strong>Formel:</strong><br>Bruttoergebnis = Nettoerlös − Warenaufwand';
+    case 'personal':
+      return '<strong>Welche Konten?</strong><br>Alle Konten der Klasse <strong>5xxx</strong> zusammenzählen.<br><br><strong>Konten:</strong> ' +
+        kk.filter(k => k.cat === 'personal').map(k => k.nr + ' ' + k.name).join(', ');
+    case 'raum':
+      return '<strong>Welche Konten?</strong><br>Konten <strong>6000</strong> (Raumaufwand) und <strong>6400</strong> (Energie).<br><br><strong>Konten:</strong> ' +
+        kk.filter(k => k.cat === 'raum').map(k => k.nr + ' ' + k.name).join(', ');
+    case 'abschr':
+      return '<strong>Welches Konto?</strong><br>Konto <strong>6800</strong> Abschreibungen.';
+    case 'uebrig':
+      return '<strong>Welche Konten?</strong><br>Alle restlichen <strong>6xxx</strong>-Konten die nicht Raum (6000/6400) oder Abschreibungen (6800) sind.<br><br><strong>Konten:</strong> ' +
+        kk.filter(k => k.cat === 'uebrig').map(k => k.nr + ' ' + k.name).join(', ');
+    case 'ebit':
+      return '<strong>Formel:</strong><br>Betriebsergebnis = Bruttoergebnis − Personalaufwand − Raumaufwand − Abschreibungen − Übriger Betr.aufwand';
+    case 'finE':
+      return '<strong>Welche Konten?</strong><br>Finanzerträge (Zinserträge, Beteiligungserträge).<br><br><strong>Konten:</strong> ' +
+        kk.filter(k => k.cat === 'finE').map(k => k.nr + ' ' + k.name).join(', ');
+    case 'finA':
+      return '<strong>Welche Konten?</strong><br>Finanzaufwände (Zinsaufwand, Bankspesen).<br><br><strong>Konten:</strong> ' +
+        kk.filter(k => k.cat === 'finA').map(k => k.nr + ' ' + k.name).join(', ');
+    case 'aoE':
+      return '<strong>Welche Konten?</strong><br>Ausserordentliche, betriebsfremde Erträge (7xxx).<br><br><strong>Konten:</strong> ' +
+        kk.filter(k => k.cat === 'aoE').map(k => k.nr + ' ' + k.name).join(', ');
+    case 'aoA':
+      return '<strong>Welche Konten?</strong><br>Ausserordentliche, betriebsfremde Aufwände (7xxx/8xxx).<br><br><strong>Konten:</strong> ' +
+        kk.filter(k => k.cat === 'aoA').map(k => k.nr + ' ' + k.name).join(', ');
+    case 'ergebnis': {
+      let t = '<strong>Formel:</strong><br>Unternehmensergebnis = Betriebsergebnis (EBIT)';
+      const a = currentTask.answers;
+      if (a.finE > 0) t += ' + Finanzertrag';
+      if (a.finA > 0) t += ' − Finanzaufwand';
+      if (a.aoE > 0) t += ' + A.o. Ertrag';
+      if (a.aoA > 0) t += ' − A.o. Aufwand';
+      return t;
+    }
+  }
+  return '';
+}
+
+// Einzelnes Feld lösen
+function solveField(key) {
+  if (!currentTask) return;
+  closeAllTipps();
+  const inp = document.getElementById('t-' + key);
+  const icon = document.getElementById('i-' + key);
+  if (!inp) return;
+  inp.value = fmtShort(currentTask.answers[key]);
+  inp.className = 'hint';
+  if (icon) { icon.textContent = '→'; icon.style.color = 'var(--orange)'; }
+}
+
+// Klick ausserhalb schliesst Tipps
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.tipp-popup') && !e.target.closest('.tipp-btn')) {
+    closeAllTipps();
+  }
+});
+
+function kontenForCat(cats) {
+  if (!Array.isArray(cats)) cats = [cats];
+  return currentTask.konten.filter(k => cats.includes(k.cat));
+}
+
+function kontenList(cats) {
+  const kk = kontenForCat(cats);
+  if (kk.length === 0) return 'keine Konten';
+  return kk.map(k => k.nr + ' ' + k.name + ' (' + fmtShort(k.betrag) + ')').join(' + ');
+}
+
+function getTipp(key) {
+  const kk = currentTask.konten;
+  const a = currentTask.answers;
+
+  switch(key) {
+    case 'netto': {
+      const ertr = kontenForCat('ertrag');
+      const erl = kontenForCat('erloesminderung');
+      const best = kontenForCat('bestand');
+      let t = '<strong>Nettoerlös</strong> = Erträge (3xxx)';
+      if (erl.length) t += ' minus Erlösminderungen (38xx)';
+      if (best.length) t += ' +/- Bestandesänderungen (39xx)';
+      t += '<br>→ ' + kontenList('ertrag');
+      if (erl.length) t += '<br>− ' + kontenList('erloesminderung');
+      if (best.length) t += '<br>± ' + kontenList('bestand');
+      t += '<br>= <strong>' + fmtShort(a.netto) + '</strong>';
+      return t;
+    }
+    case 'waren': {
+      let t = '<strong>Warenaufwand</strong> = alle Konten der Klasse 4xxx zusammenzählen';
+      t += '<br>→ ' + kontenList('waren');
+      t += '<br>= <strong>' + fmtShort(a.waren) + '</strong>';
+      return t;
+    }
+    case 'brutto':
+      return '<strong>Bruttoergebnis</strong> = Nettoerlös − Warenaufwand<br>→ ' + fmtShort(a.netto) + ' − ' + fmtShort(a.waren) + ' = <strong>' + fmtShort(a.brutto) + '</strong>';
+    case 'personal': {
+      let t = '<strong>Personalaufwand</strong> = alle Konten der Klasse 5xxx zusammenzählen';
+      t += '<br>→ ' + kontenList('personal');
+      t += '<br>= <strong>' + fmtShort(a.personal) + '</strong>';
+      return t;
+    }
+    case 'raum': {
+      let t = '<strong>Raumaufwand</strong> = Konten 6000 (Raumaufwand) und 6400 (Energie)';
+      t += '<br>→ ' + kontenList('raum');
+      t += '<br>= <strong>' + fmtShort(a.raum) + '</strong>';
+      return t;
+    }
+    case 'abschr': {
+      let t = '<strong>Abschreibungen</strong> = Konto 6800';
+      t += '<br>→ ' + kontenList('abschr');
+      t += '<br>= <strong>' + fmtShort(a.abschr) + '</strong>';
+      return t;
+    }
+    case 'uebrig': {
+      let t = '<strong>Übriger Betriebsaufwand</strong> = restliche 6xxx-Konten (6100-6700, 6900)';
+      t += '<br>→ ' + kontenList('uebrig');
+      t += '<br>= <strong>' + fmtShort(a.uebrig) + '</strong>';
+      return t;
+    }
+    case 'ebit':
+      return '<strong>Betriebsergebnis</strong> = Bruttoergebnis − Personalaufwand − Raumaufwand − Abschreibungen − Übriger Betr.aufwand<br>→ ' +
+        fmtShort(a.brutto) + ' − ' + fmtShort(a.personal) + ' − ' + fmtShort(a.raum) + ' − ' + fmtShort(a.abschr) + ' − ' + fmtShort(a.uebrig) +
+        ' = <strong>' + fmtShort(a.ebit) + '</strong>';
+    case 'finE': {
+      let t = '<strong>Finanzertrag</strong> = Zinsertrag, Beteiligungsertrag';
+      t += '<br>→ ' + kontenList('finE');
+      t += '<br>= <strong>' + fmtShort(a.finE) + '</strong>';
+      return t;
+    }
+    case 'finA': {
+      let t = '<strong>Finanzaufwand</strong> = Zinsaufwand, Bankspesen';
+      t += '<br>→ ' + kontenList('finA');
+      t += '<br>= <strong>' + fmtShort(a.finA) + '</strong>';
+      return t;
+    }
+    case 'aoE': {
+      let t = '<strong>A.o. Ertrag</strong> = betriebsfremde, einmalige Erträge';
+      t += '<br>→ ' + kontenList('aoE');
+      t += '<br>= <strong>' + fmtShort(a.aoE) + '</strong>';
+      return t;
+    }
+    case 'aoA': {
+      let t = '<strong>A.o. Aufwand</strong> = betriebsfremde, einmalige Aufwände';
+      t += '<br>→ ' + kontenList('aoA');
+      t += '<br>= <strong>' + fmtShort(a.aoA) + '</strong>';
+      return t;
+    }
+    case 'ergebnis': {
+      let t = '<strong>Unternehmensergebnis</strong> = EBIT';
+      if (a.finE > 0) t += ' + Finanzertrag';
+      if (a.finA > 0) t += ' − Finanzaufwand';
+      if (a.aoE > 0) t += ' + A.o. Ertrag';
+      if (a.aoA > 0) t += ' − A.o. Aufwand';
+      t += '<br>→ ' + fmtShort(a.ebit);
+      if (a.finE > 0) t += ' + ' + fmtShort(a.finE);
+      if (a.finA > 0) t += ' − ' + fmtShort(a.finA);
+      if (a.aoE > 0) t += ' + ' + fmtShort(a.aoE);
+      if (a.aoA > 0) t += ' − ' + fmtShort(a.aoA);
+      t += ' = <strong>' + fmtShort(a.ergebnis) + '</strong>';
+      return t;
+    }
+  }
+  return '';
+}
+
+function checkTask() {
+  if (!currentTask) return;
+  const a = currentTask.answers;
+  let allCorrect = true;
+  let wrongFields = [];
+
+  const fields = ['netto','waren','brutto','personal','raum','abschr','uebrig','ebit','ergebnis'];
+  if (a.finE > 0) fields.push('finE');
+  if (a.finA > 0) fields.push('finA');
+  if (a.aoE > 0) fields.push('aoE');
+  if (a.aoA > 0) fields.push('aoA');
+
+  fields.forEach(key => {
+    const inp = document.getElementById('t-' + key);
+    const icon = document.getElementById('i-' + key);
+    if (!inp || !icon) return;
+
+    const userVal = parseTaskVal(key);
+    const correct = a[key];
+
+    if (Math.abs(userVal - correct) < 1) {
+      inp.className = 'correct';
+      icon.textContent = '✓';
+      icon.style.color = 'var(--green)';
+    } else {
+      inp.className = 'wrong';
+      icon.textContent = '✗';
+      icon.style.color = 'var(--red)';
+      allCorrect = false;
+      wrongFields.push(key);
+    }
+  });
+
+  const fb = document.getElementById('feedback');
+  if (allCorrect) {
+    total++; solved++;
+    fb.className = 'feedback-box success';
+    fb.textContent = 'Alles richtig! Die Erfolgsrechnung ist korrekt aufgestellt.';
+    document.getElementById('check-btn').style.display = 'none';
+    document.getElementById('next-btn').style.display = '';
+    document.getElementById('learn-btn').style.display = '';
+    document.getElementById('show-btn').style.display = 'none';
+  } else {
+    // Zeige Tipp zum ersten falschen Feld
+    const firstWrong = wrongFields[0];
+    const tipp = getTipp(firstWrong);
+    fb.className = 'feedback-box error';
+    fb.innerHTML = '<strong>💡 Tipp zum ersten Fehler:</strong><br><br>' + tipp +
+      (wrongFields.length > 1 ? '<br><br><span style="color:#6b7280;font-size:.8rem">Noch ' + (wrongFields.length - 1) + ' weitere' + (wrongFields.length > 2 ? ' Fehler' : 'r Fehler') + ' — korrigiere zuerst diesen.</span>' : '');
+  }
+
+  document.getElementById('score-display').textContent = solved + ' / ' + total;
+}
+
+function showSolution() {
+  if (!currentTask) return;
+  total++;
+  const a = currentTask.answers;
+
+  const fields = ['netto','waren','brutto','personal','raum','abschr','uebrig','ebit','finE','finA','aoE','aoA','ergebnis'];
+  fields.forEach(key => {
+    const inp = document.getElementById('t-' + key);
+    const icon = document.getElementById('i-' + key);
+    if (!inp || !icon) return;
+    if (inp.closest('.er-row').style.display === 'none') return;
+    inp.value = fmtShort(a[key]);
+    inp.className = 'hint';
+    icon.textContent = '→';
+    icon.style.color = 'var(--orange)';
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback-box error';
+  fb.innerHTML = '<strong>Lösung angezeigt.</strong> Tipp: Summiere die Konten nach Klasse — Erträge (3xxx) minus Erlösminderungen = Nettoerlös, Warenaufwand (4xxx), Personal (5xxx), Betriebsaufwand (6xxx).';
+
+  document.getElementById('check-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = '';
+  document.getElementById('learn-btn').style.display = '';
+  document.getElementById('show-btn').style.display = 'none';
+  document.getElementById('score-display').textContent = solved + ' / ' + total;
+}
+
+// Enter zum Prüfen
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('view-ueben').style.display !== 'none') {
+    if (document.getElementById('check-btn').style.display !== 'none') checkTask();
+    else generateTask();
+  }
+  if (e.key === 'Enter' && document.getElementById('view-auswirkung').style.display !== 'none') {
+    if (document.getElementById('aw-check-btn').style.display !== 'none') checkAuswirkung();
+    else generateAuswirkung();
+  }
+});
+
+// ========== AUSWIRKUNGEN ==========
+let currentAw = null;
+let awSolved = 0, awTotal = 0;
+
+// Zufalls-Helfer für Vorgänge
+const kunden = ['Meier','Huber','Keller','Brunner','Fischer','Weber','Schmid','Berger','Steiner','Müller'];
+const lieferanten = ['Büro-Land AG','TechSupply GmbH','Papeterie Zentral','Getränke Frei','MetallWerk AG','Holz Bauer','ElektroShop','LogiTrans'];
+const zeitungen = ['Tages-Anzeiger','NZZ','20 Minuten','Blick','Berner Zeitung','Luzerner Zeitung'];
+const banken = ['UBS','ZKB','Raiffeisen','PostFinance','Credit Suisse'];
+const versicherungen = ['Zurich','AXA','Mobiliar','Helvetia','Allianz'];
+
+function rk() { return kunden[Math.floor(Math.random()*kunden.length)]; }
+function rl() { return lieferanten[Math.floor(Math.random()*lieferanten.length)]; }
+function rz() { return zeitungen[Math.floor(Math.random()*zeitungen.length)]; }
+function rb() { return banken[Math.floor(Math.random()*banken.length)]; }
+function rv() { return versicherungen[Math.floor(Math.random()*versicherungen.length)]; }
+function rBetrag(min,max,step) { step=step||100; return fmtShort(rand(min,max,step)); }
+
+// Vorgänge-Templates: Funktionen die bei jedem Aufruf neue Zufallswerte generieren
+const vorgangTemplates = [
+  // --- Stufe 1 (Brutto) betroffen ---
+  () => ({text: `Warenverkauf an Kunde ${rk()} CHF ${rBetrag(2000,25000,500)} auf Rechnung`, ans: [1,1,1],
+   explain: 'Warenertrag steigt → Nettoerlös steigt → alle 3 Stufen nehmen zu.'}),
+  () => ({text: `Barverkauf von Handelswaren CHF ${rBetrag(500,8000,100)} an Laufkundschaft`, ans: [1,1,1],
+   explain: 'Warenertrag steigt → Nettoerlös steigt → alle 3 Stufen nehmen zu.'}),
+  () => ({text: `Wareneinkauf bei ${rl()} CHF ${rBetrag(5000,40000,1000)} auf Kredit`, ans: [-1,-1,-1],
+   explain: 'Warenaufwand steigt → Bruttogewinn sinkt → wirkt sich auf alle Stufen aus.'}),
+  () => ({text: `Nachträglich Rabatt CHF ${rBetrag(200,3000,100)} an Kunde ${rk()} gewährt`, ans: [-1,-1,-1],
+   explain: 'Erlösminderung → Nettoerlös sinkt → alle 3 Stufen nehmen ab.'}),
+  () => ({text: `Skonto CHF ${rBetrag(100,1500,50)} auf Warenverkauf an ${rk()} gewährt`, ans: [-1,-1,-1],
+   explain: 'Erlösminderung → Nettoerlös sinkt → alle 3 Stufen nehmen ab.'}),
+  () => ({text: `Warenretoure CHF ${rBetrag(300,5000,100)} von Kunde ${rk()} erhalten`, ans: [-1,-1,-1],
+   explain: 'Erlösminderung → Nettoerlös sinkt → alle 3 Stufen nehmen ab.'}),
+  () => ({text: `Barverkauf von ${rand(10,200,5)} Stück Ware à CHF ${rBetrag(20,150,5)}`, ans: [1,1,1],
+   explain: 'Warenertrag steigt → Nettoerlös steigt → alle 3 Stufen nehmen zu.'}),
+  () => ({text: `Materialeinkauf CHF ${rBetrag(3000,20000,500)} bar bezahlt`, ans: [-1,-1,-1],
+   explain: 'Warenaufwand steigt → Bruttogewinn sinkt → alle 3 Stufen nehmen ab.'}),
+
+  // --- Stufe 2 (Betrieb) betroffen ---
+  () => ({text: `Lohnzahlung ${rBetrag(4000,12000,500)} an Mitarbeiter per ${rb()}`, ans: [0,-1,-1],
+   explain: 'Personalaufwand → Stufe 2. Kein Einfluss auf Bruttogewinn, aber Betriebs- und Unternehmensgewinn sinken.'}),
+  () => ({text: `Überweisung AHV/IV/EO-Beiträge CHF ${rBetrag(1500,6000,100)} an Ausgleichskasse`, ans: [0,-1,-1],
+   explain: 'Personalaufwand (Sozialleistungen) → Stufe 2. Brutto bleibt gleich.'}),
+  () => ({text: `Monatsmiete Geschäftsräume CHF ${rBetrag(2000,8000,500)} per ${rb()} bezahlt`, ans: [0,-1,-1],
+   explain: 'Raumaufwand → Stufe 2. Brutto bleibt gleich, Betriebsgewinn sinkt.'}),
+  () => ({text: `Reinigung Ladenfläche durch Putzfirma CHF ${rBetrag(300,1500,50)} bezahlt`, ans: [0,-1,-1],
+   explain: 'Raumaufwand/Unterhalt → Stufe 2. Kein Einfluss auf Brutto.'}),
+  () => ({text: `Abschreibung CHF ${rBetrag(2000,15000,500)} auf Ladeneinrichtung verbucht`, ans: [0,-1,-1],
+   explain: 'Abschreibung → Stufe 2. Brutto bleibt gleich, Betriebsgewinn sinkt.'}),
+  () => ({text: `Abschreibung CHF ${rBetrag(3000,12000,500)} auf Lieferwagen verbucht`, ans: [0,-1,-1],
+   explain: 'Abschreibung → Stufe 2. Kein Einfluss auf Brutto.'}),
+  () => ({text: `Stromrechnung CHF ${rBetrag(400,2500,50)} für Büroräume bezahlt`, ans: [0,-1,-1],
+   explain: 'Energieaufwand/Raumaufwand → Stufe 2. Brutto bleibt gleich.'}),
+  () => ({text: `Werbeinserat CHF ${rBetrag(500,5000,100)} im ${rz()} geschaltet`, ans: [0,-1,-1],
+   explain: 'Werbeaufwand (übriger Betriebsaufwand) → Stufe 2. Brutto bleibt gleich.'}),
+  () => ({text: `Versicherungsprämie CHF ${rBetrag(800,4000,100)} an ${rv()} bezahlt`, ans: [0,-1,-1],
+   explain: 'Sachversicherung (übriger Betriebsaufwand) → Stufe 2. Brutto bleibt gleich.'}),
+  () => ({text: `Reparatur Heizungsanlage CHF ${rBetrag(1000,8000,500)} bar bezahlt`, ans: [0,-1,-1],
+   explain: 'Unterhalt (übriger Betriebsaufwand) → Stufe 2. Brutto bleibt gleich.'}),
+  () => ({text: `IT-Support CHF ${rBetrag(200,2000,100)}/Monat an Informatikfirma überwiesen`, ans: [0,-1,-1],
+   explain: 'Informatikaufwand (übriger Betriebsaufwand) → Stufe 2.'}),
+  () => ({text: `Weiterbildungskurs CHF ${rBetrag(500,4000,100)} für Mitarbeiter bezahlt`, ans: [0,-1,-1],
+   explain: 'Aus- und Weiterbildung (Personalaufwand) → Stufe 2.'}),
+  () => ({text: `Leasingrate CHF ${rBetrag(800,3000,100)} für Geschäftsfahrzeug bezahlt`, ans: [0,-1,-1],
+   explain: 'Leasing (übriger Betriebsaufwand) → Stufe 2. Brutto bleibt gleich.'}),
+  () => ({text: `Gratifikation CHF ${rBetrag(1000,5000,500)} an Mitarbeiter ausbezahlt`, ans: [0,-1,-1],
+   explain: 'Personalaufwand → Stufe 2. Brutto bleibt gleich.'}),
+
+  // --- Stufe 3 (Unternehmen) betroffen ---
+  () => ({text: `Kursgewinn CHF ${rBetrag(500,8000,100)} auf Wertschriften realisiert`, ans: [0,0,1],
+   explain: 'Finanzertrag → nur Stufe 3. Brutto und Betriebsgewinn bleiben gleich.'}),
+  () => ({text: `Zinsgutschrift CHF ${rBetrag(50,2000,50)} von ${rb()} erhalten`, ans: [0,0,1],
+   explain: 'Finanzertrag (Zinsertrag) → nur Stufe 3.'}),
+  () => ({text: `Dividende CHF ${rBetrag(1000,10000,500)} aus Beteiligung erhalten`, ans: [0,0,1],
+   explain: 'Finanzertrag (Beteiligungsertrag) → nur Stufe 3.'}),
+  () => ({text: `Zins CHF ${rBetrag(500,5000,100)} für Hypothek an ${rb()} bezahlt`, ans: [0,0,-1],
+   explain: 'Finanzaufwand → nur Stufe 3. Brutto und Betriebsgewinn bleiben gleich.'}),
+  () => ({text: `Kontoführungsgebühren CHF ${rBetrag(50,300,10)} von ${rb()} belastet`, ans: [0,0,-1],
+   explain: 'Finanzaufwand (Bankspesen) → nur Stufe 3.'}),
+  () => ({text: `Kursverlust CHF ${rBetrag(300,5000,100)} auf Wertschriften realisiert`, ans: [0,0,-1],
+   explain: 'Finanzaufwand → nur Stufe 3.'}),
+  () => ({text: `Alte Maschine für CHF ${rBetrag(5000,30000,1000)} über Buchwert verkauft`, ans: [0,0,1],
+   explain: 'A.o. Ertrag (Gewinn aus Veräusserung AV) → nur Stufe 3.'}),
+  () => ({text: `Brandschaden CHF ${rBetrag(5000,50000,1000)} an nicht versicherter Anlage`, ans: [0,0,-1],
+   explain: 'A.o. Aufwand → nur Stufe 3.'}),
+  () => ({text: `Einmalige Steuerrückzahlung CHF ${rBetrag(1000,10000,500)} erhalten`, ans: [0,0,1],
+   explain: 'A.o. Ertrag → nur Stufe 3.'}),
+  () => ({text: `Zins CHF ${rBetrag(200,3000,100)} für Darlehen an ${rb()} überwiesen`, ans: [0,0,-1],
+   explain: 'Finanzaufwand → nur Stufe 3.'}),
+
+  // --- Keine Auswirkung auf ER ---
+  () => ({text: `Kunde ${rk()} bezahlt offene Rechnung CHF ${rBetrag(1000,15000,500)} per Bank`, ans: [0,0,0],
+   explain: 'Aktivtausch (Bank an Debitoren) → kein Aufwand/Ertrag, keine Auswirkung auf die ER.'}),
+  () => ({text: `Aufnahme Bankdarlehen CHF ${rBetrag(20000,200000,10000)} bei ${rb()}`, ans: [0,0,0],
+   explain: 'Bilanzverlängerung (Bank an Darlehen) → kein Aufwand/Ertrag, keine Auswirkung auf die ER.'}),
+  () => ({text: `Zahlung CHF ${rBetrag(2000,20000,500)} an Lieferant ${rl()} per Bank`, ans: [0,0,0],
+   explain: 'Passivtausch (Kreditoren an Bank) → kein Aufwand/Ertrag.'}),
+  () => ({text: `Bareinzahlung CHF ${rBetrag(1000,10000,500)} auf ${rb()}-Konto`, ans: [0,0,0],
+   explain: 'Aktivtausch (Bank an Kasse) → kein Aufwand/Ertrag.'}),
+  () => ({text: `Rückzahlung Darlehen CHF ${rBetrag(5000,50000,5000)} an ${rb()}`, ans: [0,0,0],
+   explain: 'Bilanzverkürzung (Darlehen an Bank) → kein Aufwand/Ertrag.'}),
+  () => ({text: `Privater Warenbezug CHF ${rBetrag(100,2000,50)} durch Inhaber`, ans: [0,0,0],
+   explain: 'Privatbezug (Privat an Warenbestand) → Eigenkapitalminderung, kein Aufwand in der ER.'}),
+  () => ({text: `Kunde ${rk()} überweist Anzahlung CHF ${rBetrag(1000,10000,500)}`, ans: [0,0,0],
+   explain: 'Bilanzverlängerung (Bank an Vorauszahlung/Kreditoren) → noch kein Ertrag, keine Auswirkung auf ER.'}),
+];
+
+function generateAuswirkung() {
+  // Templates nach Kategorie sortieren
+  const cats = {brutto: [], betrieb: [], unternehmen: [], keine: []};
+  vorgangTemplates.forEach((fn, i) => {
+    const sample = fn();
+    const key = sample.ans[0] !== 0 ? 'brutto' : sample.ans[1] !== 0 ? 'betrieb' : sample.ans[2] !== 0 ? 'unternehmen' : 'keine';
+    cats[key].push(i);
+  });
+
+  // Je Kategorie zufällig Indizes wählen, dann Instanzen generieren
+  const selectedIdx = [];
+  ['brutto','betrieb','unternehmen','keine'].forEach(cat => {
+    const shuffled = cats[cat].sort(() => Math.random() - 0.5);
+    const n = cat === 'betrieb' ? 3 : 2;
+    selectedIdx.push(...shuffled.slice(0, n));
+  });
+
+  // Generiere die konkreten Instanzen mit Zufallswerten
+  const selected = selectedIdx.sort(() => Math.random() - 0.5).map(i => vorgangTemplates[i]());
+
+  currentAw = {items: selected, userAnswers: selected.map(() => [null, null, null])};
+
+  document.getElementById('aw-context').innerHTML = '<strong>Aufgabe:</strong> Wie wirken sich die folgenden Vorgänge auf den Bruttogewinn, Betriebsgewinn und Unternehmensgewinn aus? Trage <strong>+</strong> für Zunahme, <strong>−</strong> für Abnahme oder <strong>0</strong> für keine Auswirkung ein.';
+
+  renderAuswirkung();
+
+  document.getElementById('aw-feedback').className = 'feedback-box';
+  document.getElementById('aw-check-btn').style.display = '';
+  document.getElementById('aw-next-btn').style.display = 'none';
+  document.getElementById('aw-learn-btn').style.display = 'none';
+  document.getElementById('aw-show-btn').style.display = '';
+}
+
+function renderAuswirkung() {
+  const body = document.getElementById('aw-body');
+  body.innerHTML = currentAw.items.map((item, i) => {
+    const cols = ['brutto','betrieb','unternehmen'].map((col, j) => {
+      const sel = currentAw.userAnswers[i][j];
+      return `<td>
+        <div class="aw-toggle">
+          <button class="aw-btn ${sel === 1 ? 'selected-plus' : ''}" onclick="setAw(${i},${j},1)" id="aw-${i}-${j}-p">+</button>
+          <button class="aw-btn ${sel === 0 ? 'selected-zero' : ''}" onclick="setAw(${i},${j},0)" id="aw-${i}-${j}-z">0</button>
+          <button class="aw-btn ${sel === -1 ? 'selected-minus' : ''}" onclick="setAw(${i},${j},-1)" id="aw-${i}-${j}-m">−</button>
+        </div>
+      </td>`;
+    }).join('');
+    return `<tr id="aw-row-${i}">
+      <td>${i + 1}</td>
+      <td>${item.text}</td>
+      ${cols}
+      <td class="aw-check" id="aw-chk-${i}"></td>
+    </tr>
+    <tr class="aw-explain" id="aw-exp-${i}"><td colspan="6"></td></tr>`;
+  }).join('');
+}
+
+function setAw(row, col, val) {
+  if (!currentAw) return;
+  const cur = currentAw.userAnswers[row][col];
+  // Toggle: wenn gleicher Wert nochmal geklickt, abwählen
+  currentAw.userAnswers[row][col] = cur === val ? null : val;
+
+  // Update button states
+  const sel = currentAw.userAnswers[row][col];
+  const bp = document.getElementById(`aw-${row}-${col}-p`);
+  const bz = document.getElementById(`aw-${row}-${col}-z`);
+  const bm = document.getElementById(`aw-${row}-${col}-m`);
+  bp.className = 'aw-btn' + (sel === 1 ? ' selected-plus' : '');
+  bz.className = 'aw-btn' + (sel === 0 ? ' selected-zero' : '');
+  bm.className = 'aw-btn' + (sel === -1 ? ' selected-minus' : '');
+}
+
+function checkAuswirkung() {
+  if (!currentAw) return;
+  let allCorrect = true;
+  let wrongCount = 0;
+
+  currentAw.items.forEach((item, i) => {
+    const ua = currentAw.userAnswers[i];
+    const ca = item.ans;
+    const rowCorrect = ua[0] === ca[0] && ua[1] === ca[1] && ua[2] === ca[2];
+    const chk = document.getElementById('aw-chk-' + i);
+    const exp = document.getElementById('aw-exp-' + i);
+
+    if (rowCorrect) {
+      chk.textContent = '✓';
+      chk.style.color = 'var(--green)';
+    } else {
+      chk.textContent = '✗';
+      chk.style.color = 'var(--red)';
+      allCorrect = false;
+      wrongCount++;
+      // Zeige Erklärung
+      exp.classList.add('show');
+      exp.querySelector('td').innerHTML = '<strong>Erklärung:</strong> ' + item.explain;
+    }
+
+    // Markiere einzelne Zellen
+    [0,1,2].forEach(j => {
+      const bp = document.getElementById(`aw-${i}-${j}-p`);
+      const bz = document.getElementById(`aw-${i}-${j}-z`);
+      const bm = document.getElementById(`aw-${i}-${j}-m`);
+      // Zeige korrekte Antwort
+      if (!rowCorrect) {
+        if (ca[j] === 1) bp.classList.add('correct');
+        if (ca[j] === 0) bz.classList.add('correct');
+        if (ca[j] === -1) bm.classList.add('correct');
+        // Markiere falsch ausgewählte
+        if (ua[j] !== null && ua[j] !== ca[j]) {
+          if (ua[j] === 1) bp.classList.add('wrong-selected');
+          if (ua[j] === 0) bz.classList.add('wrong-selected');
+          if (ua[j] === -1) bm.classList.add('wrong-selected');
+        }
+      }
+    });
+  });
+
+  const fb = document.getElementById('aw-feedback');
+  if (allCorrect) {
+    awTotal++; awSolved++;
+    fb.className = 'feedback-box success';
+    fb.textContent = 'Alles richtig! Alle Auswirkungen korrekt zugeordnet.';
+    document.getElementById('aw-check-btn').style.display = 'none';
+    document.getElementById('aw-next-btn').style.display = '';
+    document.getElementById('aw-learn-btn').style.display = '';
+    document.getElementById('aw-show-btn').style.display = 'none';
+  } else {
+    fb.className = 'feedback-box error';
+    fb.innerHTML = wrongCount + ' Vorgang/Vorgänge falsch. Bei falschen Zeilen wird die <strong>Erklärung</strong> und die <strong>korrekte Antwort</strong> (grün umrandet) angezeigt.';
+  }
+
+  document.getElementById('aw-score-display').textContent = awSolved + ' / ' + awTotal;
+}
+
+function showAuswirkungSolution() {
+  if (!currentAw) return;
+  awTotal++;
+
+  currentAw.items.forEach((item, i) => {
+    const ca = item.ans;
+    const chk = document.getElementById('aw-chk-' + i);
+    const exp = document.getElementById('aw-exp-' + i);
+
+    chk.textContent = '→';
+    chk.style.color = 'var(--orange)';
+    exp.classList.add('show');
+    exp.querySelector('td').innerHTML = '<strong>Erklärung:</strong> ' + item.explain;
+
+    [0,1,2].forEach(j => {
+      // Setze korrekte Antwort
+      currentAw.userAnswers[i][j] = ca[j];
+      const bp = document.getElementById(`aw-${i}-${j}-p`);
+      const bz = document.getElementById(`aw-${i}-${j}-z`);
+      const bm = document.getElementById(`aw-${i}-${j}-m`);
+      bp.className = 'aw-btn' + (ca[j] === 1 ? ' selected-plus' : '');
+      bz.className = 'aw-btn' + (ca[j] === 0 ? ' selected-zero' : '');
+      bm.className = 'aw-btn' + (ca[j] === -1 ? ' selected-minus' : '');
+    });
+  });
+
+  const fb = document.getElementById('aw-feedback');
+  fb.className = 'feedback-box error';
+  fb.innerHTML = '<strong>Lösung angezeigt.</strong> Lies die Erklärungen durch und versuche die nächste Aufgabe selbst.';
+
+  document.getElementById('aw-check-btn').style.display = 'none';
+  document.getElementById('aw-next-btn').style.display = '';
+  document.getElementById('aw-learn-btn').style.display = '';
+  document.getElementById('aw-show-btn').style.display = 'none';
+  document.getElementById('aw-score-display').textContent = awSolved + ' / ' + awTotal;
+}
+
+// ========== BUCHUNGSSÄTZE ==========
+let currentBs = null;
+let bsSolved = 0, bsTotal = 0;
+
+// Konten für Dropdown (vereinfacht, KMU-Kontenrahmen)
+const bsKonten = [
+  // Aktiven
+  {nr: '1000', name: 'Kasse', kat: 'Aktiv'},
+  {nr: '1020', name: 'Bank', kat: 'Aktiv'},
+  {nr: '1100', name: 'Debitoren', kat: 'Aktiv'},
+  {nr: '1170', name: 'Vorsteuer (VST)', kat: 'Aktiv'},
+  {nr: '1200', name: 'Warenvorrat', kat: 'Aktiv'},
+  {nr: '1500', name: 'Maschinen', kat: 'Aktiv'},
+  {nr: '1510', name: 'Mobiliar', kat: 'Aktiv'},
+  {nr: '1520', name: 'Fahrzeuge', kat: 'Aktiv'},
+  {nr: '1530', name: 'Informatik', kat: 'Aktiv'},
+  {nr: '1600', name: 'Wertschriften', kat: 'Aktiv'},
+  // Passiven
+  {nr: '2000', name: 'Kreditoren', kat: 'Passiv'},
+  {nr: '2030', name: 'Geschuldete MWST', kat: 'Passiv'},
+  {nr: '2100', name: 'Bankdarlehen', kat: 'Passiv'},
+  {nr: '2200', name: 'Hypothek', kat: 'Passiv'},
+  {nr: '2800', name: 'Eigenkapital', kat: 'Passiv'},
+  {nr: '2900', name: 'Privat', kat: 'Passiv'},
+  // Aufwand
+  {nr: '4000', name: 'Materialaufwand', kat: 'Aufwand'},
+  {nr: '4200', name: 'Handelswarenaufwand', kat: 'Aufwand'},
+  {nr: '5000', name: 'Löhne', kat: 'Aufwand'},
+  {nr: '5200', name: 'Sozialleistungen', kat: 'Aufwand'},
+  {nr: '5700', name: 'Weiterbildung', kat: 'Aufwand'},
+  {nr: '6000', name: 'Raumaufwand', kat: 'Aufwand'},
+  {nr: '6100', name: 'Unterhalt/Reparaturen', kat: 'Aufwand'},
+  {nr: '6200', name: 'Fahrzeugaufwand', kat: 'Aufwand'},
+  {nr: '6300', name: 'Sachversicherungen', kat: 'Aufwand'},
+  {nr: '6400', name: 'Energieaufwand', kat: 'Aufwand'},
+  {nr: '6500', name: 'Verwaltungsaufwand', kat: 'Aufwand'},
+  {nr: '6570', name: 'Informatikaufwand', kat: 'Aufwand'},
+  {nr: '6600', name: 'Werbeaufwand', kat: 'Aufwand'},
+  {nr: '6800', name: 'Abschreibungen', kat: 'Aufwand'},
+  {nr: '6900', name: 'Zinsaufwand', kat: 'Aufwand'},
+  {nr: '6950', name: 'Bankspesen', kat: 'Aufwand'},
+  // Ertrag
+  {nr: '3000', name: 'Warenertrag', kat: 'Ertrag'},
+  {nr: '3200', name: 'Dienstleistungsertrag', kat: 'Ertrag'},
+  {nr: '3800', name: 'Erlösminderungen', kat: 'Ertrag'},
+  {nr: '6950', name: 'Zinsertrag', kat: 'Ertrag'},
+  {nr: '6960', name: 'Wertschriftenertrag', kat: 'Ertrag'},
+];
+
+// Buchungssatz-Templates mit Zufallswerten
+const bsTemplates = [
+  // ---- Warenverkehr ----
+  () => { const b = rBetrag(2000,30000,500); return {
+    text: `Warenverkauf an Kunde ${rk()} auf Rechnung`, betrag: b,
+    soll: '1100', haben: '3000',
+    explain: `Debitor nimmt zu (Soll) / Warenertrag nimmt zu (Haben)`
+  }},
+  () => { const b = rBetrag(500,8000,100); return {
+    text: `Barverkauf von Handelswaren an Laufkundschaft`, betrag: b,
+    soll: '1000', haben: '3000',
+    explain: `Kasse nimmt zu (Soll) / Warenertrag nimmt zu (Haben)`
+  }},
+  () => { const b = rBetrag(3000,25000,500); return {
+    text: `Wareneinkauf bei ${rl()} auf Kredit`, betrag: b,
+    soll: '4200', haben: '2000',
+    explain: `Handelswarenaufwand nimmt zu (Soll) / Kreditoren nimmt zu (Haben)`
+  }},
+  () => { const b = rBetrag(1000,15000,500); return {
+    text: `Wareneinkauf bar bezahlt`, betrag: b,
+    soll: '4200', haben: '1000',
+    explain: `Handelswarenaufwand nimmt zu (Soll) / Kasse nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(200,3000,100); return {
+    text: `Rabatt an Kunde ${rk()} gewährt`, betrag: b,
+    soll: '3800', haben: '1100',
+    explain: `Erlösminderung nimmt zu (Soll) / Debitor nimmt ab (Haben)`
+  }},
+
+  // ---- Personal ----
+  () => { const b = rBetrag(4000,12000,500); return {
+    text: `Lohnzahlung an Mitarbeiter per ${rb()}`, betrag: b,
+    soll: '5000', haben: '1020',
+    explain: `Lohnaufwand nimmt zu (Soll) / Bank nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(1000,5000,100); return {
+    text: `AHV/IV-Beiträge an Ausgleichskasse überwiesen`, betrag: b,
+    soll: '5200', haben: '1020',
+    explain: `Sozialleistungen nimmt zu (Soll) / Bank nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(500,3000,100); return {
+    text: `Weiterbildungskurs für Mitarbeiter per Bank bezahlt`, betrag: b,
+    soll: '5700', haben: '1020',
+    explain: `Weiterbildung nimmt zu (Soll) / Bank nimmt ab (Haben)`
+  }},
+
+  // ---- Betriebsaufwand ----
+  () => { const b = rBetrag(1500,6000,500); return {
+    text: `Monatsmiete für Geschäftsräume per ${rb()} bezahlt`, betrag: b,
+    soll: '6000', haben: '1020',
+    explain: `Raumaufwand nimmt zu (Soll) / Bank nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(300,2000,50); return {
+    text: `Stromrechnung per Bank bezahlt`, betrag: b,
+    soll: '6400', haben: '1020',
+    explain: `Energieaufwand nimmt zu (Soll) / Bank nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(500,5000,100); return {
+    text: `Werbeinserat im ${rz()} per Bank bezahlt`, betrag: b,
+    soll: '6600', haben: '1020',
+    explain: `Werbeaufwand nimmt zu (Soll) / Bank nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(800,4000,100); return {
+    text: `Versicherungsprämie an ${rv()} per Bank bezahlt`, betrag: b,
+    soll: '6300', haben: '1020',
+    explain: `Sachversicherung nimmt zu (Soll) / Bank nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(1000,8000,500); return {
+    text: `Reparatur Heizung bar bezahlt`, betrag: b,
+    soll: '6100', haben: '1000',
+    explain: `Unterhalt/Reparaturen nimmt zu (Soll) / Kasse nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(2000,15000,500); return {
+    text: `Abschreibung auf Ladeneinrichtung verbucht`, betrag: b,
+    soll: '6800', haben: '1510',
+    explain: `Abschreibungen nimmt zu (Soll) / Mobiliar nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(3000,12000,500); return {
+    text: `Abschreibung auf Lieferwagen verbucht`, betrag: b,
+    soll: '6800', haben: '1520',
+    explain: `Abschreibungen nimmt zu (Soll) / Fahrzeuge nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(1000,5000,500); return {
+    text: `Abschreibung auf Informatik verbucht`, betrag: b,
+    soll: '6800', haben: '1530',
+    explain: `Abschreibungen nimmt zu (Soll) / Informatik nimmt ab (Haben)`
+  }},
+
+  // ---- Finanz ----
+  () => { const b = rBetrag(100,2000,50); return {
+    text: `Zinsgutschrift von ${rb()} erhalten`, betrag: b,
+    soll: '1020', haben: '6950',
+    explain: `Bank nimmt zu (Soll) / Zinsertrag nimmt zu (Haben)`
+  }},
+  () => { const b = rBetrag(500,5000,100); return {
+    text: `Zins für Hypothek an ${rb()} bezahlt`, betrag: b,
+    soll: '6900', haben: '1020',
+    explain: `Zinsaufwand nimmt zu (Soll) / Bank nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(50,300,10); return {
+    text: `Bankgebühren von ${rb()} belastet`, betrag: b,
+    soll: '6950', haben: '1020',
+    explain: `Bankspesen nimmt zu (Soll) / Bank nimmt ab (Haben)`
+  }},
+  () => { const b = rBetrag(1000,8000,500); return {
+    text: `Dividende aus Beteiligung auf Bank erhalten`, betrag: b,
+    soll: '1020', haben: '6960',
+    explain: `Bank nimmt zu (Soll) / Wertschriftenertrag nimmt zu (Haben)`
+  }},
+
+  // ---- Bilanz (kein ER-Effekt) ----
+  () => { const b = rBetrag(1000,20000,500); return {
+    text: `Kunde ${rk()} bezahlt offene Rechnung per Bank`, betrag: b,
+    soll: '1020', haben: '1100',
+    explain: `Bank nimmt zu (Soll) / Debitor nimmt ab (Haben) — Aktivtausch`
+  }},
+  () => { const b = rBetrag(2000,20000,500); return {
+    text: `Bezahlung Lieferantenrechnung per Bank an ${rl()}`, betrag: b,
+    soll: '2000', haben: '1020',
+    explain: `Kreditoren nimmt ab (Soll) / Bank nimmt ab (Haben) — Bilanzverkürzung`
+  }},
+  () => { const b = rBetrag(20000,200000,10000); return {
+    text: `Aufnahme Bankdarlehen bei ${rb()}`, betrag: b,
+    soll: '1020', haben: '2100',
+    explain: `Bank nimmt zu (Soll) / Bankdarlehen nimmt zu (Haben) — Bilanzverlängerung`
+  }},
+  () => { const b = rBetrag(5000,50000,5000); return {
+    text: `Rückzahlung Darlehen an ${rb()} per Bank`, betrag: b,
+    soll: '2100', haben: '1020',
+    explain: `Bankdarlehen nimmt ab (Soll) / Bank nimmt ab (Haben) — Bilanzverkürzung`
+  }},
+  () => { const b = rBetrag(500,5000,100); return {
+    text: `Bareinzahlung auf ${rb()}-Konto`, betrag: b,
+    soll: '1020', haben: '1000',
+    explain: `Bank nimmt zu (Soll) / Kasse nimmt ab (Haben) — Aktivtausch`
+  }},
+  () => { const b = rBetrag(100,2000,50); return {
+    text: `Privatbezug Waren durch Inhaber`, betrag: b,
+    soll: '2900', haben: '4200',
+    explain: `Privat nimmt zu (Soll = EK-Minderung) / Handelswarenaufwand nimmt ab (Haben)`
+  }},
+];
+
+function getKontoOptions(selectedNr) {
+  const groups = {Aktiv: [], Passiv: [], Aufwand: [], Ertrag: []};
+  bsKonten.forEach(k => groups[k.kat].push(k));
+  let html = '<option value="">— Konto wählen —</option>';
+  for (const [kat, konten] of Object.entries(groups)) {
+    html += `<optgroup label="${kat}">`;
+    konten.forEach(k => {
+      html += `<option value="${k.nr}" ${k.nr === selectedNr ? 'selected' : ''}>${k.nr} ${k.name}</option>`;
+    });
+    html += '</optgroup>';
+  }
+  return html;
+}
+
+function generateBuchung() {
+  // Wähle 5-6 verschiedene Buchungen
+  const shuffled = [...bsTemplates].sort(() => Math.random() - 0.5);
+  const items = shuffled.slice(0, 6).map(fn => fn());
+
+  currentBs = {items};
+  renderBuchung();
+
+  document.getElementById('bs-feedback').className = 'feedback-box';
+  document.getElementById('bs-check-btn').style.display = '';
+  document.getElementById('bs-next-btn').style.display = 'none';
+  document.getElementById('bs-learn-btn').style.display = 'none';
+  document.getElementById('bs-show-btn').style.display = '';
+}
+
+function renderBuchung() {
+  const container = document.getElementById('bs-container');
+  container.innerHTML = currentBs.items.map((item, i) => `
+    <div class="bs-card">
+      <div class="bs-header">
+        <div class="bs-nr">${i + 1}</div>
+        <div class="bs-text">${item.text}</div>
+        <div class="bs-betrag">CHF ${item.betrag}</div>
+      </div>
+      <div class="bs-body">
+        <div class="bs-row">
+          <div class="bs-label">Soll</div>
+          <div class="bs-select-wrap">
+            <select class="bs-select" id="bs-soll-${i}">${getKontoOptions('')}</select>
+            <div class="bs-select-arrow">▼</div>
+          </div>
+          <div class="bs-check" id="bs-chk-soll-${i}"></div>
+        </div>
+        <div class="bs-an">an</div>
+        <div class="bs-row">
+          <div class="bs-label">Haben</div>
+          <div class="bs-select-wrap">
+            <select class="bs-select" id="bs-haben-${i}">${getKontoOptions('')}</select>
+            <div class="bs-select-arrow">▼</div>
+          </div>
+          <div class="bs-check" id="bs-chk-haben-${i}"></div>
+        </div>
+        <div class="bs-explain-box" id="bs-exp-${i}"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function checkBuchung() {
+  if (!currentBs) return;
+  let allCorrect = true;
+  let wrongCount = 0;
+
+  currentBs.items.forEach((item, i) => {
+    const sollSel = document.getElementById('bs-soll-' + i);
+    const habenSel = document.getElementById('bs-haben-' + i);
+    const chkSoll = document.getElementById('bs-chk-soll-' + i);
+    const chkHaben = document.getElementById('bs-chk-haben-' + i);
+    const exp = document.getElementById('bs-exp-' + i);
+
+    const sollOk = sollSel.value === item.soll;
+    const habenOk = habenSel.value === item.haben;
+
+    if (sollOk) {
+      sollSel.className = 'bs-select correct';
+      chkSoll.textContent = '✓'; chkSoll.style.color = 'var(--green)';
+    } else {
+      sollSel.className = 'bs-select wrong';
+      chkSoll.textContent = '✗'; chkSoll.style.color = 'var(--red)';
+      allCorrect = false;
+    }
+
+    if (habenOk) {
+      habenSel.className = 'bs-select correct';
+      chkHaben.textContent = '✓'; chkHaben.style.color = 'var(--green)';
+    } else {
+      habenSel.className = 'bs-select wrong';
+      chkHaben.textContent = '✗'; chkHaben.style.color = 'var(--red)';
+      allCorrect = false;
+    }
+
+    if (!sollOk || !habenOk) {
+      wrongCount++;
+      const sollName = bsKonten.find(k => k.nr === item.soll);
+      const habenName = bsKonten.find(k => k.nr === item.haben);
+      exp.innerHTML = `<strong>Lösung:</strong> ${item.soll} ${sollName ? sollName.name : ''} / ${item.haben} ${habenName ? habenName.name : ''}<br>${item.explain}`;
+      exp.classList.add('show');
+    }
+  });
+
+  const fb = document.getElementById('bs-feedback');
+  if (allCorrect) {
+    bsTotal++; bsSolved++;
+    fb.className = 'feedback-box success';
+    fb.textContent = 'Alle Buchungssätze korrekt!';
+    document.getElementById('bs-check-btn').style.display = 'none';
+    document.getElementById('bs-next-btn').style.display = '';
+    document.getElementById('bs-learn-btn').style.display = '';
+    document.getElementById('bs-show-btn').style.display = 'none';
+  } else {
+    fb.className = 'feedback-box error';
+    fb.innerHTML = wrongCount + ' Buchungssatz/sätze falsch. Die korrekte Lösung und Erklärung wird bei den falschen angezeigt.';
+  }
+
+  document.getElementById('bs-score-display').textContent = bsSolved + ' / ' + bsTotal;
+}
+
+function showBuchungSolution() {
+  if (!currentBs) return;
+  bsTotal++;
+
+  currentBs.items.forEach((item, i) => {
+    const sollSel = document.getElementById('bs-soll-' + i);
+    const habenSel = document.getElementById('bs-haben-' + i);
+    const chkSoll = document.getElementById('bs-chk-soll-' + i);
+    const chkHaben = document.getElementById('bs-chk-haben-' + i);
+    const exp = document.getElementById('bs-exp-' + i);
+
+    sollSel.value = item.soll;
+    habenSel.value = item.haben;
+    sollSel.className = 'bs-select hint';
+    habenSel.className = 'bs-select hint';
+    chkSoll.textContent = '→'; chkSoll.style.color = 'var(--orange)';
+    chkHaben.textContent = '→'; chkHaben.style.color = 'var(--orange)';
+    exp.innerHTML = `<strong>Erklärung:</strong> ${item.explain}`;
+    exp.classList.add('show');
+  });
+
+  const fb = document.getElementById('bs-feedback');
+  fb.className = 'feedback-box error';
+  fb.innerHTML = '<strong>Lösung angezeigt.</strong> Lies die Erklärungen und versuche die nächste Aufgabe selbst.';
+
+  document.getElementById('bs-check-btn').style.display = 'none';
+  document.getElementById('bs-next-btn').style.display = '';
+  document.getElementById('bs-learn-btn').style.display = '';
+  document.getElementById('bs-show-btn').style.display = 'none';
+  document.getElementById('bs-score-display').textContent = bsSolved + ' / ' + bsTotal;
+}
+</script>
+</body>
+</html>
