@@ -2349,6 +2349,16 @@ const wkTemplates = [
   () => ({soll:'Kasse', haben:'Post', betrag:rBetrag(500,5000,100), explain:'Kasse nimmt zu, Post nimmt ab → per Saldo = (beides Geld). Kein Aufwand/Ertrag → nicht erfolgswirksam.'}),
   () => ({soll:'Mobiliar', haben:'VLL', betrag:rBetrag(5000,30000,1000), explain:'Kein Geldkonto → =. Kein Aufwand/Ertrag → nicht erfolgswirksam.'}),
   () => ({soll:'Warenvorrat', haben:'VLL', betrag:rBetrag(3000,20000,500), explain:'Kein Geldkonto → =. Kein Aufwand/Ertrag → nicht erfolgswirksam.'}),
+  // Zusätzliche Varianten
+  () => ({soll:'Sozialleistungen', haben:'Bankguthaben', betrag:rBetrag(1500,6000,100), explain:'Bank (Geld) nimmt ab → −. Sozialleistungen = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'Kasse', haben:'Dienstleistungsertrag', betrag:rBetrag(500,5000,100), explain:'Kasse (Geld) nimmt zu → +. Dienstleistungsertrag = Ertrag → erfolgswirksam.'}),
+  () => ({soll:'Informatikaufwand', haben:'Bankguthaben', betrag:rBetrag(200,3000,100), explain:'Bank (Geld) nimmt ab → −. Informatikaufwand = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'Fahrzeugaufwand', haben:'Kasse', betrag:rBetrag(100,1500,50), explain:'Kasse (Geld) nimmt ab → −. Fahrzeugaufwand = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'FLL', haben:'Dienstleistungsertrag', betrag:rBetrag(2000,15000,500), explain:'Kein Geldkonto betroffen → =. Dienstleistungsertrag = Ertrag → erfolgswirksam.'}),
+  () => ({soll:'Abschreibungen', haben:'Maschinen', betrag:rBetrag(5000,25000,1000), explain:'Kein Geldkonto betroffen → =. Abschreibungen = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'Bankguthaben', haben:'FLL', betrag:rBetrag(2000,15000,500), explain:'Bank (Geld) nimmt zu → +. Keine Aufwand/Ertrag-Konten → nicht erfolgswirksam.'}),
+  () => ({soll:'Versicherungsaufwand', haben:'Post', betrag:rBetrag(500,3000,100), explain:'Post (Geld) nimmt ab → −. Versicherungsaufwand = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'FLL', haben:'VLL', betrag:rBetrag(1000,10000,500), explain:'Kein Geldkonto → =. Kein Aufwand/Ertrag → nicht erfolgswirksam.'}),
 ];
 
 function calcWkAnswers(item) {
@@ -2367,7 +2377,7 @@ function calcWkAnswers(item) {
 function generateWirksamkeit() {
   cancelAuto();
   // Pick 10-12 random, ensure mix
-  const shuffled = wkTemplates.sort(() => Math.random() - 0.5);
+  const shuffled = [...wkTemplates].sort(() => Math.random() - 0.5);
   const items = shuffled.slice(0, 10).map(fn => {
     const item = fn();
     item.answers = calcWkAnswers(item);
