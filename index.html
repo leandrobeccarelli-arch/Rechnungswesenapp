@@ -256,6 +256,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .splash-sub{color:#64748b;font-size:clamp(.85rem,2vw,1.1rem);margin-top:16px;font-weight:500;letter-spacing:2px;text-transform:uppercase}
 .splash-hint{color:#475569;font-size:.8rem;position:absolute;bottom:40px;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.splash-avatar{margin-bottom:20px;filter:drop-shadow(0 4px 20px rgba(0,0,0,.4));animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .splash-line{width:60px;height:3px;background:linear-gradient(90deg,#f87171,#fb923c);border-radius:2px;margin-top:20px}
 </style>
 </head>
@@ -263,6 +265,48 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <!-- SPLASH -->
 <div class="splash" id="splash" onclick="dismissSplash()">
+  <svg class="splash-avatar" width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Body/Shirt -->
+    <ellipse cx="70" cy="128" rx="52" ry="28" fill="#334155"/>
+    <ellipse cx="70" cy="126" rx="48" ry="24" fill="#475569"/>
+    <!-- Tie -->
+    <polygon points="70,95 64,110 70,125 76,110" fill="#f87171"/>
+    <polygon points="70,95 66,100 70,106 74,100" fill="#ef4444"/>
+    <!-- Collar -->
+    <polygon points="55,96 70,105 62,96" fill="#e2e8f0"/>
+    <polygon points="85,96 70,105 78,96" fill="#e2e8f0"/>
+    <!-- Head -->
+    <ellipse cx="70" cy="58" rx="38" ry="40" fill="#fcd9b6"/>
+    <!-- Double chin -->
+    <ellipse cx="70" cy="88" rx="26" ry="12" fill="#f5c89a"/>
+    <ellipse cx="70" cy="85" rx="30" ry="14" fill="#fcd9b6"/>
+    <!-- Cheeks -->
+    <circle cx="42" cy="65" r="8" fill="#f9a8a8" opacity=".35"/>
+    <circle cx="98" cy="65" r="8" fill="#f9a8a8" opacity=".35"/>
+    <!-- Eyes -->
+    <circle cx="55" cy="52" r="4" fill="#1e293b"/>
+    <circle cx="85" cy="52" r="4" fill="#1e293b"/>
+    <circle cx="56.5" cy="50.5" r="1.5" fill="#fff"/>
+    <circle cx="86.5" cy="50.5" r="1.5" fill="#fff"/>
+    <!-- Eyebrows (stressed) -->
+    <path d="M45 42 Q55 38 63 43" stroke="#4a3728" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M77 43 Q85 38 95 42" stroke="#4a3728" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- Glasses -->
+    <rect x="40" y="43" width="24" height="20" rx="4" stroke="#94a3b8" stroke-width="2.5" fill="none"/>
+    <rect x="76" y="43" width="24" height="20" rx="4" stroke="#94a3b8" stroke-width="2.5" fill="none"/>
+    <line x1="64" y1="52" x2="76" y2="52" stroke="#94a3b8" stroke-width="2.5"/>
+    <line x1="40" y1="52" x2="32" y2="48" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="100" y1="52" x2="108" y2="48" stroke="#94a3b8" stroke-width="2"/>
+    <!-- Mouth (annoyed/meh) -->
+    <path d="M58 72 Q70 68 82 72" stroke="#94633a" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- Hair (balding, few strands) -->
+    <path d="M38 38 Q42 18 70 16 Q98 18 102 38" stroke="#4a3728" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M50 22 Q48 12 52 8" stroke="#4a3728" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M65 18 Q64 8 68 5" stroke="#4a3728" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M80 19 Q82 10 78 6" stroke="#4a3728" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- Sweat drop -->
+    <ellipse cx="104" cy="40" rx="3" ry="5" fill="#60a5fa" opacity=".6"/>
+  </svg>
   <div class="splash-logo"><span>FuckBuchhaltung</span>.ch</div>
   <div class="splash-line"></div>
   <div class="splash-sub">Rechnungswesen Trainer</div>
