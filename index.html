@@ -346,12 +346,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <span>Rechner & Trainer</span>
   </div>
   <div class="nav-right">
-    <button class="nav-btn active" id="tab-rechner" onclick="switchTab('rechner')">Lernen</button>
-    <button class="nav-btn" id="tab-ueben" onclick="switchTab('ueben')">Zuordnen</button>
-    <button class="nav-btn" id="tab-auswirkung" onclick="switchTab('auswirkung')">Auswirkungen</button>
-    <button class="nav-btn" id="tab-buchung" onclick="switchTab('buchung')">Buchungssätze</button>
-    <button class="nav-btn" id="tab-sortieren" onclick="switchTab('sortieren')">Sortieren</button>
-    <button class="nav-btn" id="tab-wirksamkeit" onclick="switchTab('wirksamkeit')">Wirksamkeit</button>
+    <button class="nav-btn active" id="tab-rechner" onclick="switchTab('rechner')">Theorie</button>
+    <button class="nav-btn" id="tab-sortieren" onclick="switchTab('sortieren')">Bilanz & ER</button>
+    <button class="nav-btn" id="tab-ueben" onclick="switchTab('ueben')">ER aufstellen</button>
+    <button class="nav-btn" id="tab-buchung" onclick="switchTab('buchung')">Buchen</button>
+    <button class="nav-btn" id="tab-auswirkung" onclick="switchTab('auswirkung')">3 Stufen</button>
+    <button class="nav-btn" id="tab-wirksamkeit" onclick="switchTab('wirksamkeit')">Liquidität</button>
   </div>
 </div>
 
@@ -1337,7 +1337,7 @@ function checkTask() {
     document.getElementById('next-btn').style.display = '';
     document.getElementById('learn-btn').style.display = '';
     document.getElementById('show-btn').style.display = 'none';
-    autoAdvance(generateTask);
+    autoAdvance(generateTask, 6000);
   } else {
     // Zeige Tipp zum ersten falschen Feld
     const firstWrong = wrongFields[0];
@@ -1376,7 +1376,7 @@ function showSolution() {
   document.getElementById('learn-btn').style.display = '';
   document.getElementById('show-btn').style.display = 'none';
   document.getElementById('score-display').textContent = solved + ' / ' + total;
-  autoAdvance(generateTask, 4000);
+  autoAdvance(generateTask, 8000);
 }
 
 // Enter zum Prüfen
@@ -1625,7 +1625,7 @@ function checkAuswirkung() {
     document.getElementById('aw-next-btn').style.display = '';
     document.getElementById('aw-learn-btn').style.display = '';
     document.getElementById('aw-show-btn').style.display = 'none';
-    autoAdvance(generateAuswirkung);
+    autoAdvance(generateAuswirkung, 6000);
   } else {
     fb.className = 'feedback-box error';
     fb.innerHTML = wrongCount + ' Vorgang/Vorgänge falsch. Bei falschen Zeilen wird die <strong>Erklärung</strong> und die <strong>korrekte Antwort</strong> (grün umrandet) angezeigt.';
@@ -1669,7 +1669,7 @@ function showAuswirkungSolution() {
   document.getElementById('aw-learn-btn').style.display = '';
   document.getElementById('aw-show-btn').style.display = 'none';
   document.getElementById('aw-score-display').textContent = awSolved + ' / ' + awTotal;
-  autoAdvance(generateAuswirkung, 5000);
+  autoAdvance(generateAuswirkung, 8000);
 }
 
 // ========== BUCHUNGSSÄTZE ==========
@@ -1978,7 +1978,7 @@ function checkBuchung() {
     document.getElementById('bs-next-btn').style.display = '';
     document.getElementById('bs-learn-btn').style.display = '';
     document.getElementById('bs-show-btn').style.display = 'none';
-    autoAdvance(generateBuchung);
+    autoAdvance(generateBuchung, 6000);
   } else {
     fb.className = 'feedback-box error';
     fb.innerHTML = wrongCount + ' Buchungssatz/sätze falsch. Die korrekte Lösung und Erklärung wird bei den falschen angezeigt.';
@@ -2017,7 +2017,7 @@ function showBuchungSolution() {
   document.getElementById('bs-learn-btn').style.display = '';
   document.getElementById('bs-show-btn').style.display = 'none';
   document.getElementById('bs-score-display').textContent = bsSolved + ' / ' + bsTotal;
-  autoAdvance(generateBuchung, 4000);
+  autoAdvance(generateBuchung, 8000);
 }
 
 // ========== SORTIEREN ==========
@@ -2248,7 +2248,7 @@ function checkSortieren() {
     document.getElementById('sort-next-btn').style.display = '';
     document.getElementById('sort-learn-btn').style.display = '';
     document.getElementById('sort-show-btn').style.display = 'none';
-    autoAdvance(generateSortieren, 3000);
+    autoAdvance(generateSortieren, 6000);
   } else {
     if (unplaced.length > 0) {
       fb.className = 'feedback-box error';
@@ -2294,7 +2294,7 @@ function showSortierenSolution() {
   document.getElementById('sort-learn-btn').style.display = '';
   document.getElementById('sort-show-btn').style.display = 'none';
   document.getElementById('sort-score-display').textContent = sortSolved + ' / ' + sortTotal;
-  autoAdvance(generateSortieren, 5000);
+  autoAdvance(generateSortieren, 8000);
 }
 
 // ========== WIRKSAMKEIT ==========
@@ -2472,7 +2472,7 @@ function checkWirksamkeit() {
     document.getElementById('wk-next-btn').style.display = '';
     document.getElementById('wk-learn-btn').style.display = '';
     document.getElementById('wk-show-btn').style.display = 'none';
-    autoAdvance(generateWirksamkeit);
+    autoAdvance(generateWirksamkeit, 6000);
   } else {
     fb.className = 'feedback-box error';
     fb.innerHTML = wrongCount + ' Zeile' + (wrongCount > 1 ? 'n' : '') + ' falsch. Korrekte Antwort grün, falsche rot markiert.';
@@ -2502,7 +2502,7 @@ function showWirksamkeitSolution() {
   document.getElementById('wk-learn-btn').style.display = '';
   document.getElementById('wk-show-btn').style.display = 'none';
   document.getElementById('wk-score-display').textContent = wkSolved + ' / ' + wkTotal;
-  autoAdvance(generateWirksamkeit, 5000);
+  autoAdvance(generateWirksamkeit, 8000);
 }
 </script>
 </body>
