@@ -680,8 +680,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <span class="score" id="sort-score-display">0 / 0</span>
   </div>
 
-  <div class="info-box">
-    <strong>Klicke eine Position</strong> oben an, dann klicke auf den Zielbereich in der Bilanz oder Erfolgsrechnung. Zum Entfernen: Position im Zielbereich anklicken.
+  <div class="difficulty-selector" id="sort-mode-selector">
+    <button class="diff-btn active" onclick="setSortMode('beides')">Bilanz & ER</button>
+    <button class="diff-btn" onclick="setSortMode('bilanz')">Nur Bilanz</button>
+    <button class="diff-btn" onclick="setSortMode('er')">Nur ER (3-stufig)</button>
+  </div>
+
+  <div class="info-box" id="sort-info">
+    <strong>Klicke eine Position</strong> oben an, dann klicke auf den Zielbereich. Zum Entfernen: Position im Zielbereich anklicken.
   </div>
 
   <div id="sort-firma" style="font-weight:700;font-size:1rem;margin-bottom:12px"></div>
@@ -690,8 +696,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <div class="sort-pool" id="sort-pool"></div>
 
   <!-- Bilanz + ER nebeneinander -->
-  <div class="sort-tables">
-    <div class="sort-box">
+  <div class="sort-tables" id="sort-tables-beides">
+    <div class="sort-box" id="sort-bilanz-box">
       <div class="sort-box-header bilanz">Bilanz</div>
       <div class="sort-half">
         <div class="sort-col">
@@ -712,7 +718,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         </div>
       </div>
     </div>
-    <div class="sort-box">
+    <div class="sort-box" id="sort-er-simple-box">
       <div class="sort-box-header er">Erfolgsrechnung</div>
       <div class="sort-half">
         <div class="sort-col">
@@ -727,6 +733,41 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         </div>
       </div>
       <div class="sort-gewinn" id="sort-gewinn-row" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- 3-stufige ER (nur bei Modus 'er') -->
+  <div id="sort-er3-box" style="display:none">
+    <div class="sort-box" style="max-width:600px">
+      <div class="sort-box-header er">3-stufige Erfolgsrechnung</div>
+      <div class="sort-col-head" style="color:var(--accent)">Stufe 1 — Bruttoergebnis</div>
+      <div style="padding:0 4px">
+        <div class="sort-col-head" style="font-size:.6rem;color:var(--text2)">Nettoerlös (Erträge − Erlösminderungen)</div>
+        <div class="drop-zone" id="dz-er-ertrag" onclick="dropInZone('er-ertrag')"><div class="drop-hint">Erträge hierhin</div></div>
+        <div class="sort-col-head" style="font-size:.6rem;color:var(--text2)">− Warenaufwand</div>
+        <div class="drop-zone" id="dz-er-waren" onclick="dropInZone('er-waren')"><div class="drop-hint">Warenaufwand hierhin</div></div>
+        <div class="sort-total-row" id="total-brutto"><span>= Bruttoergebnis</span><span>0</span></div>
+      </div>
+      <div class="sort-col-head" style="color:var(--accent)">Stufe 2 — Betriebsergebnis (EBIT)</div>
+      <div style="padding:0 4px">
+        <div class="sort-col-head" style="font-size:.6rem;color:var(--text2)">− Personalaufwand</div>
+        <div class="drop-zone" id="dz-er-personal" onclick="dropInZone('er-personal')"><div class="drop-hint">Personalaufwand hierhin</div></div>
+        <div class="sort-col-head" style="font-size:.6rem;color:var(--text2)">− Raumaufwand</div>
+        <div class="drop-zone" id="dz-er-raum" onclick="dropInZone('er-raum')"><div class="drop-hint">Raumaufwand hierhin</div></div>
+        <div class="sort-col-head" style="font-size:.6rem;color:var(--text2)">− Abschreibungen</div>
+        <div class="drop-zone" id="dz-er-abschr" onclick="dropInZone('er-abschr')"><div class="drop-hint">Abschreibungen hierhin</div></div>
+        <div class="sort-col-head" style="font-size:.6rem;color:var(--text2)">− Übriger Betriebsaufwand</div>
+        <div class="drop-zone" id="dz-er-uebrig" onclick="dropInZone('er-uebrig')"><div class="drop-hint">Übriger Aufwand hierhin</div></div>
+        <div class="sort-total-row" id="total-ebit"><span>= Betriebsergebnis</span><span>0</span></div>
+      </div>
+      <div class="sort-col-head" style="color:var(--accent)">Stufe 3 — Unternehmensergebnis</div>
+      <div style="padding:0 4px">
+        <div class="sort-col-head" style="font-size:.6rem;color:var(--text2)">+/− Finanzergebnis</div>
+        <div class="drop-zone" id="dz-er-finanz" onclick="dropInZone('er-finanz')"><div class="drop-hint">Finanzertrag/-aufwand hierhin</div></div>
+        <div class="sort-col-head" style="font-size:.6rem;color:var(--text2)">+/− A.o. Ergebnis</div>
+        <div class="drop-zone" id="dz-er-ao" onclick="dropInZone('er-ao')"><div class="drop-hint">A.o. Posten hierhin</div></div>
+        <div class="sort-total-row" style="background:linear-gradient(135deg,#1a2332,#0f172a);color:#fff" id="total-unternehmen"><span>= Unternehmensergebnis</span><span>0</span></div>
+      </div>
     </div>
   </div>
 
@@ -2023,14 +2064,35 @@ function showBuchungSolution() {
 // ========== SORTIEREN ==========
 let currentSort = null;
 let sortSolved = 0, sortTotal = 0;
-let selectedChip = null; // Index der aktuell ausgewählten Position
-let placements = {}; // {index: 'aktiv-uv'|'aktiv-av'|...}
+let selectedChip = null;
+let placements = {};
+let sortMode = 'beides'; // 'beides', 'bilanz', 'er'
+
+function setSortMode(m) {
+  sortMode = m;
+  document.querySelectorAll('#sort-mode-selector .diff-btn').forEach(b => {
+    b.className = 'diff-btn' + (b.textContent.includes(m === 'beides' ? 'Bilanz & ER' : m === 'bilanz' ? 'Nur Bilanz' : 'Nur ER') ? ' active' : '');
+  });
+  generateSortieren();
+}
 
 const branchen = [
   'Fachgeschäft für Surf- und Tauchbedarf','Velowerkstatt & Zubehör','Bio-Lebensmittelladen',
   'IT-Beratungsfirma','Blumenladen','Schreinerei','Coiffeursalon','Buchhandlung',
   'Bäckerei & Konditorei','Sportartikel-Shop','Elektroinstallationen','Architekturbüro',
 ];
+
+// ER-spezifische Kategorien für 3-stufige ER
+const erCatMap = {
+  'Warenertrag':'er-ertrag','Dienstleistungsertrag':'er-ertrag','Ertrag Kurshonorare':'er-ertrag',
+  'Übrige Erträge':'er-ertrag','Mietertrag':'er-ertrag','Erlösminderungen':'er-ertrag',
+  'Warenaufwand':'er-waren','Materialaufwand':'er-waren',
+  'Personalaufwand':'er-personal','Löhne':'er-personal','Sozialleistungen':'er-personal',
+  'Raumaufwand':'er-raum','Energieaufwand':'er-raum',
+  'Abschreibungen':'er-abschr',
+  'Übriger Aufwand':'er-uebrig','Werbeaufwand':'er-uebrig','Versicherungsaufwand':'er-uebrig','Unterhalt':'er-uebrig','Informatikaufwand':'er-uebrig','Fahrzeugaufwand':'er-uebrig',
+  'Finanzaufwand':'er-finanz','Zinsaufwand':'er-finanz','Zinsertrag':'er-finanz','Finanzertrag':'er-finanz',
+};
 
 const posPool = {
   'aktiv-uv': [
@@ -2076,26 +2138,57 @@ function generateSortieren() {
   cancelAuto();
   const branche = branchen[Math.floor(Math.random() * branchen.length)];
   let positionen = [];
-  positionen.push(...pickPos('aktiv-uv', 3 + Math.floor(Math.random()*2)));
-  positionen.push(...pickPos('aktiv-av', 2 + Math.floor(Math.random()*2)));
-  positionen.push(...pickPos('passiv-fk', 2 + Math.floor(Math.random()*2)));
-  positionen.push(...pickPos('aufwand', 4 + Math.floor(Math.random()*3)));
-  positionen.push(...pickPos('ertrag', 1 + Math.floor(Math.random()*2)));
 
-  const sumAktiv = positionen.filter(p => p.cat.startsWith('aktiv')).reduce((s,p) => s+p.betrag, 0);
-  const sumFK = positionen.filter(p => p.cat === 'passiv-fk').reduce((s,p) => s+p.betrag, 0);
-  const sumAufwand = positionen.filter(p => p.cat === 'aufwand').reduce((s,p) => s+p.betrag, 0);
-  const sumErtrag = positionen.filter(p => p.cat === 'ertrag').reduce((s,p) => s+p.betrag, 0);
-  const gewinn = sumErtrag - sumAufwand;
-  const ek = sumAktiv - sumFK - gewinn;
-  if (ek < 10) return generateSortieren();
+  if (sortMode === 'bilanz' || sortMode === 'beides') {
+    positionen.push(...pickPos('aktiv-uv', 3 + Math.floor(Math.random()*2)));
+    positionen.push(...pickPos('aktiv-av', 2 + Math.floor(Math.random()*2)));
+    positionen.push(...pickPos('passiv-fk', 2 + Math.floor(Math.random()*2)));
+  }
+  if (sortMode === 'er' || sortMode === 'beides') {
+    positionen.push(...pickPos('aufwand', sortMode === 'er' ? 6 + Math.floor(Math.random()*4) : 4 + Math.floor(Math.random()*3)));
+    positionen.push(...pickPos('ertrag', sortMode === 'er' ? 2 + Math.floor(Math.random()*2) : 1 + Math.floor(Math.random()*2)));
+  }
 
-  positionen.push({name:'Eigenkapital', betrag:ek, cat:'passiv-ek'});
+  if (sortMode === 'bilanz' || sortMode === 'beides') {
+    const sumAktiv = positionen.filter(p => p.cat.startsWith('aktiv')).reduce((s,p) => s+p.betrag, 0);
+    const sumFK = positionen.filter(p => p.cat === 'passiv-fk').reduce((s,p) => s+p.betrag, 0);
+    const sumAufwand = positionen.filter(p => p.cat === 'aufwand').reduce((s,p) => s+p.betrag, 0);
+    const sumErtrag = positionen.filter(p => p.cat === 'ertrag').reduce((s,p) => s+p.betrag, 0);
+    const gewinn = sumErtrag - sumAufwand;
+    const ek = sumAktiv - sumFK - gewinn;
+    if (ek < 10) return generateSortieren();
+    positionen.push({name:'Eigenkapital', betrag:ek, cat:'passiv-ek'});
+  }
+
+  // Im ER-Modus: Kategorie auf er-* mappen
+  if (sortMode === 'er') {
+    positionen.forEach(p => {
+      p.cat = erCatMap[p.name] || p.cat;
+    });
+  }
+
   positionen.sort((a,b) => a.name.localeCompare(b.name,'de'));
 
-  currentSort = {branche, positionen, gewinn};
+  const sumAufw = positionen.filter(p => p.cat === 'aufwand' || p.cat.startsWith('er-')).filter(p => !['er-ertrag'].includes(p.cat)).reduce((s,p) => s+p.betrag, 0);
+  const sumErtr = positionen.filter(p => p.cat === 'ertrag' || p.cat === 'er-ertrag').reduce((s,p) => s+p.betrag, 0);
+
+  currentSort = {branche, positionen, gewinn: sumErtr - sumAufw, mode: sortMode};
   selectedChip = null;
   placements = {};
+
+  // Show/hide boxes based on mode
+  document.getElementById('sort-bilanz-box').style.display = sortMode === 'er' ? 'none' : '';
+  document.getElementById('sort-er-simple-box').style.display = sortMode === 'er' ? 'none' : (sortMode === 'bilanz' ? 'none' : '');
+  document.getElementById('sort-tables-beides').style.display = sortMode === 'er' ? 'none' : '';
+  document.getElementById('sort-er3-box').style.display = sortMode === 'er' ? '' : 'none';
+
+  if (sortMode === 'bilanz') {
+    document.getElementById('sort-er-simple-box').style.display = 'none';
+    document.getElementById('sort-tables-beides').style.display = '';
+    document.getElementById('sort-tables-beides').style.gridTemplateColumns = '1fr';
+  } else if (sortMode === 'beides') {
+    document.getElementById('sort-tables-beides').style.gridTemplateColumns = '1fr 1fr';
+  }
 
   document.getElementById('sort-firma').textContent = branche;
   renderPool();
@@ -2149,10 +2242,16 @@ function removeFromZone(idx) {
   updateTotals();
 }
 
+function getAllZones() {
+  if (sortMode === 'er') return ['er-ertrag','er-waren','er-personal','er-raum','er-abschr','er-uebrig','er-finanz','er-ao'];
+  if (sortMode === 'bilanz') return ['aktiv-uv','aktiv-av','passiv-fk','passiv-ek'];
+  return ['aktiv-uv','aktiv-av','passiv-fk','passiv-ek','aufwand','ertrag'];
+}
+
 function renderAllZones() {
-  const zones = ['aktiv-uv','aktiv-av','passiv-fk','passiv-ek','aufwand','ertrag'];
-  zones.forEach(zone => {
+  getAllZones().forEach(zone => {
     const dz = document.getElementById('dz-' + zone);
+    if (!dz) return;
     const items = [];
     for (const [idx, z] of Object.entries(placements)) {
       if (z === zone) items.push(parseInt(idx));
@@ -2178,15 +2277,37 @@ function updateTotals() {
     }
     return s;
   };
-  const tA = sumZone('aktiv-uv') + sumZone('aktiv-av');
-  const tP = sumZone('passiv-fk') + sumZone('passiv-ek');
-  const tAufw = sumZone('aufwand');
-  const tErtr = sumZone('ertrag');
+  const sumZones = (...zones) => zones.reduce((s, z) => s + sumZone(z), 0);
 
-  document.getElementById('total-aktiv').innerHTML = `<span>Total Aktiven</span><span>${fmtShort(tA)}</span>`;
-  document.getElementById('total-passiv').innerHTML = `<span>Total Passiven</span><span>${fmtShort(tP)}</span>`;
-  document.getElementById('total-aufwand').innerHTML = `<span>Total Aufwand</span><span>${fmtShort(tAufw)}</span>`;
-  document.getElementById('total-ertrag').innerHTML = `<span>Total Ertrag</span><span>${fmtShort(tErtr)}</span>`;
+  if (sortMode !== 'er') {
+    const tA = sumZone('aktiv-uv') + sumZone('aktiv-av');
+    const tP = sumZone('passiv-fk') + sumZone('passiv-ek');
+    document.getElementById('total-aktiv').innerHTML = `<span>Total Aktiven</span><span>${fmtShort(tA)}</span>`;
+    document.getElementById('total-passiv').innerHTML = `<span>Total Passiven</span><span>${fmtShort(tP)}</span>`;
+    if (sortMode === 'beides') {
+      document.getElementById('total-aufwand').innerHTML = `<span>Total Aufwand</span><span>${fmtShort(sumZone('aufwand'))}</span>`;
+      document.getElementById('total-ertrag').innerHTML = `<span>Total Ertrag</span><span>${fmtShort(sumZone('ertrag'))}</span>`;
+    }
+  }
+
+  if (sortMode === 'er') {
+    const netto = sumZone('er-ertrag');
+    const waren = sumZone('er-waren');
+    const brutto = netto - waren;
+    const personal = sumZone('er-personal');
+    const raum = sumZone('er-raum');
+    const abschr = sumZone('er-abschr');
+    const uebrig = sumZone('er-uebrig');
+    const ebit = brutto - personal - raum - abschr - uebrig;
+    const finanz = sumZone('er-finanz');
+    const ao = sumZone('er-ao');
+    // Finanz: Erträge positiv, Aufwände negativ — hier vereinfacht als Saldo
+    const unt = ebit; // Finanz/ao wird beim Check geprüft
+
+    document.getElementById('total-brutto').innerHTML = `<span>= Bruttoergebnis</span><span>${fmtShort(brutto)}</span>`;
+    document.getElementById('total-ebit').innerHTML = `<span>= Betriebsergebnis</span><span>${fmtShort(ebit)}</span>`;
+    document.getElementById('total-unternehmen').innerHTML = `<span>= Unternehmensergebnis</span><span>—</span>`;
+  }
 }
 
 function checkSortieren() {
@@ -2212,8 +2333,7 @@ function checkSortieren() {
   });
 
   // Markiere falsche Drop-Chips
-  const zones = ['aktiv-uv','aktiv-av','passiv-fk','passiv-ek','aufwand','ertrag'];
-  zones.forEach(zone => {
+  getAllZones().forEach(zone => {
     const dz = document.getElementById('dz-' + zone);
     dz.querySelectorAll('.drop-chip').forEach(dc => {
       const idx = [...Object.entries(placements)].find(([i,z]) => z === zone);
