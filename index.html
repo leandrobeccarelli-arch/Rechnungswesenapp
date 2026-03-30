@@ -248,6 +248,33 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .sort-gewinn.pos{color:var(--green);background:#f0fdf4}
 .sort-gewinn.neg{color:var(--red);background:#fef2f2}
 
+/* ===== WIRKSAMKEIT TAB ===== */
+.wk-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;font-size:.84rem}
+.wk-table th{background:var(--input-bg);padding:8px 10px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);border-bottom:2px solid var(--border);text-align:center}
+.wk-table th.left{text-align:left}
+.wk-table td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle}
+.wk-table tr:last-child td{border-bottom:none}
+.wk-table td.left{text-align:left;font-weight:500}
+.wk-table td.nr{color:var(--text2);font-weight:600;width:35px}
+.wk-table td.betrag{font-weight:700;text-align:right;white-space:nowrap}
+.wk-table tr:hover{background:var(--hover)}
+.wk-table .col-group{border-left:2px solid var(--border)}
+
+.wk-radio{display:flex;gap:0;justify-content:center}
+.wk-rb{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .12s;padding:0}
+.wk-rb:hover{border-color:var(--accent);color:var(--accent)}
+.wk-rb.sel-plus{background:#dcfce7;border-color:var(--green);color:var(--green)}
+.wk-rb.sel-eq{background:#e0e7ff;border-color:#6366f1;color:#6366f1}
+.wk-rb.sel-minus{background:#fef2f2;border-color:var(--red);color:var(--red)}
+.wk-rb.sel-ja{background:#dcfce7;border-color:var(--green);color:var(--green)}
+.wk-rb.sel-nein{background:#f1f5f9;border-color:var(--text2);color:var(--text2)}
+.wk-rb.correct{box-shadow:0 0 0 2px var(--green)}
+.wk-rb.wrong-sel{box-shadow:0 0 0 2px var(--red)}
+
+.wk-exp{display:none;background:#fffbeb;font-size:.78rem;color:var(--text);text-align:left !important}
+.wk-exp.show{display:table-row}
+.wk-exp td{padding:6px 10px !important;line-height:1.4}
+
 /* ===== SPLASH ===== */
 .splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(165deg,#0a0c10 0%,#141820 30%,#1a2332 60%,#0d1018 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity .5s,visibility .5s}
 .splash.hide{opacity:0;visibility:hidden;pointer-events:none}
@@ -324,6 +351,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <button class="nav-btn" id="tab-auswirkung" onclick="switchTab('auswirkung')">Auswirkungen</button>
     <button class="nav-btn" id="tab-buchung" onclick="switchTab('buchung')">Buchungssätze</button>
     <button class="nav-btn" id="tab-sortieren" onclick="switchTab('sortieren')">Sortieren</button>
+    <button class="nav-btn" id="tab-wirksamkeit" onclick="switchTab('wirksamkeit')">Wirksamkeit</button>
   </div>
 </div>
 
@@ -712,6 +740,49 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
 </div>
 
+<!-- ========== WIRKSAMKEIT TAB ========== -->
+<div class="container" id="view-wirksamkeit" style="display:none;max-width:880px">
+
+  <div class="score-bar">
+    <span>Richtig:</span>
+    <span class="score" id="wk-score-display">0 / 0</span>
+  </div>
+
+  <div class="info-box">
+    <strong>Liquiditäts- und Erfolgswirksamkeit:</strong> Bestimme für jeden Buchungssatz, ob die <strong>Geldmittel</strong> (Kasse, Post, Bank) zu- oder abnehmen oder gleich bleiben, und ob der Geschäftsfall <strong>erfolgswirksam</strong> ist.
+  </div>
+
+  <table class="wk-table">
+    <thead>
+      <tr>
+        <th>Nr.</th>
+        <th class="left">Soll</th>
+        <th class="left">Haben</th>
+        <th>Betrag</th>
+        <th class="col-group" colspan="3">Geldmittel</th>
+        <th class="col-group" colspan="2">erf'wirks.</th>
+        <th></th>
+      </tr>
+      <tr>
+        <th></th><th></th><th></th><th></th>
+        <th class="col-group">+</th><th>=</th><th>−</th>
+        <th class="col-group">ja</th><th>nein</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="wk-body"></tbody>
+  </table>
+
+  <div class="feedback-box" id="wk-feedback"></div>
+
+  <div class="task-actions">
+    <button class="btn btn-primary" id="wk-check-btn" onclick="checkWirksamkeit()">Prüfen</button>
+    <button class="btn btn-outline" id="wk-next-btn" onclick="generateWirksamkeit()" style="display:none">Nächste Aufgabe</button>
+    <button class="btn btn-outline" id="wk-learn-btn" onclick="switchTab('rechner')" style="display:none">Nochmals lernen</button>
+    <button class="btn btn-outline" id="wk-show-btn" onclick="showWirksamkeitSolution()">Lösung zeigen</button>
+  </div>
+</div>
+
 <script>
 // ========== SPLASH ==========
 function dismissSplash() {
@@ -769,7 +840,7 @@ function resetAll() {
 // ========== TABS ==========
 function switchTab(tab) {
   cancelAuto();
-  ['rechner','ueben','auswirkung','buchung','sortieren'].forEach(t => {
+  ['rechner','ueben','auswirkung','buchung','sortieren','wirksamkeit'].forEach(t => {
     document.getElementById('view-' + t).style.display = tab === t ? '' : 'none';
     document.getElementById('tab-' + t).className = 'nav-btn' + (tab === t ? ' active' : '');
   });
@@ -777,6 +848,7 @@ function switchTab(tab) {
   if (tab === 'auswirkung' && !currentAw) generateAuswirkung();
   if (tab === 'buchung' && !currentBs) generateBuchung();
   if (tab === 'sortieren' && !currentSort) generateSortieren();
+  if (tab === 'wirksamkeit' && !currentWk) generateWirksamkeit();
 }
 
 // ========== AUTO-ADVANCE ==========
@@ -2223,6 +2295,214 @@ function showSortierenSolution() {
   document.getElementById('sort-show-btn').style.display = 'none';
   document.getElementById('sort-score-display').textContent = sortSolved + ' / ' + sortTotal;
   autoAdvance(generateSortieren, 5000);
+}
+
+// ========== WIRKSAMKEIT ==========
+let currentWk = null;
+let wkSolved = 0, wkTotal = 0;
+
+// Geldmittel-Konten
+const geldKonten = ['Kasse','Post','Bank','Bankguthaben','Flüssige Mittel'];
+function isGeld(name) { return geldKonten.some(g => name.includes(g)); }
+
+// Aufwand/Ertrag-Konten (erfolgswirksam)
+function isErfolg(name) {
+  const ew = ['Handelserlöse','Warenertrag','Dienstleistungsertrag','Finanzertrag','Mietertrag','Zinsertrag','Übrige Erträge',
+    'Warenaufwand','Materialaufwand','Personalaufwand','Löhne','Sozialleistungen','Raumaufwand','Abschreibungen',
+    'Finanzaufwand','Zinsaufwand','Werbeaufwand','Energieaufwand','Versicherungsaufwand','Unterhalt, Rep.',
+    'Informatikaufwand','Fahrzeugaufwand','Übriger Aufwand'];
+  return ew.some(e => name === e);
+}
+
+// Buchungssatz-Templates für Wirksamkeits-Übung
+const wkTemplates = [
+  // Geld + / erfolgswirksam ja
+  () => ({soll:'Kasse', haben:'Handelserlöse', betrag:rBetrag(5000,30000,500), explain:'Kasse (Geld) nimmt zu → +. Handelserlöse = Ertrag → erfolgswirksam.'}),
+  () => ({soll:'Post', haben:'Handelserlöse', betrag:rBetrag(3000,20000,500), explain:'Post (Geld) nimmt zu → +. Handelserlöse = Ertrag → erfolgswirksam.'}),
+  () => ({soll:'Bankguthaben', haben:'Finanzertrag', betrag:rBetrag(50,500,10), explain:'Bank (Geld) nimmt zu → +. Finanzertrag = Ertrag → erfolgswirksam.'}),
+  () => ({soll:'Bankguthaben', haben:'Mietertrag', betrag:rBetrag(1000,5000,500), explain:'Bank (Geld) nimmt zu → +. Mietertrag = Ertrag → erfolgswirksam.'}),
+
+  // Geld − / erfolgswirksam ja
+  () => ({soll:'Raumaufwand', haben:'Bankguthaben', betrag:rBetrag(1500,6000,100), explain:'Bank (Geld) nimmt ab → −. Raumaufwand = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'Finanzaufwand', haben:'Bankguthaben', betrag:rBetrag(100,1000,10), explain:'Bank (Geld) nimmt ab → −. Finanzaufwand = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'Löhne', haben:'Post', betrag:rBetrag(4000,12000,500), explain:'Post (Geld) nimmt ab → −. Löhne = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'Werbeaufwand', haben:'Kasse', betrag:rBetrag(200,3000,100), explain:'Kasse (Geld) nimmt ab → −. Werbeaufwand = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'Energieaufwand', haben:'Bankguthaben', betrag:rBetrag(300,2000,50), explain:'Bank (Geld) nimmt ab → −. Energieaufwand = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'Unterhalt, Rep.', haben:'Bankguthaben', betrag:rBetrag(1000,8000,500), explain:'Bank (Geld) nimmt ab → −. Unterhalt = Aufwand → erfolgswirksam.'}),
+
+  // Geld = / erfolgswirksam ja
+  () => ({soll:'FLL', haben:'Handelserlöse', betrag:rBetrag(5000,25000,500), explain:'Kein Geldkonto betroffen → =. Handelserlöse = Ertrag → erfolgswirksam.'}),
+  () => ({soll:'Abschreibungen', haben:'Mobiliar', betrag:rBetrag(2000,20000,500), explain:'Kein Geldkonto betroffen → =. Abschreibungen = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'Abschreibungen', haben:'Fahrzeuge', betrag:rBetrag(3000,15000,1000), explain:'Kein Geldkonto betroffen → =. Abschreibungen = Aufwand → erfolgswirksam.'}),
+  () => ({soll:'Unterhalt, Rep.', haben:'Rückstellungen', betrag:rBetrag(2000,10000,500), explain:'Kein Geldkonto betroffen → =. Unterhalt = Aufwand → erfolgswirksam.'}),
+
+  // Geld + / erfolgswirksam nein
+  () => ({soll:'Post', haben:'FLL', betrag:rBetrag(3000,20000,500), explain:'Post (Geld) nimmt zu → +. Keine Aufwand/Ertrag-Konten → nicht erfolgswirksam.'}),
+  () => ({soll:'Bankguthaben', haben:'Kasse', betrag:rBetrag(1000,10000,500), explain:'Bank nimmt zu, Kasse nimmt ab → per Saldo = (beides Geld). Kein Aufwand/Ertrag → nicht erfolgswirksam.'}),
+
+  // Geld − / erfolgswirksam nein
+  () => ({soll:'VLL', haben:'Post', betrag:rBetrag(2000,15000,500), explain:'Post (Geld) nimmt ab → −. Keine Aufwand/Ertrag-Konten → nicht erfolgswirksam.'}),
+  () => ({soll:'VLL', haben:'Bankguthaben', betrag:rBetrag(3000,20000,1000), explain:'Bank (Geld) nimmt ab → −. Keine Aufwand/Ertrag-Konten → nicht erfolgswirksam.'}),
+
+  // Geld = / erfolgswirksam nein
+  () => ({soll:'Fahrzeuge', haben:'VLL', betrag:rBetrag(10000,50000,1000), explain:'Kein Geldkonto betroffen → =. Keine Aufwand/Ertrag-Konten → nicht erfolgswirksam.'}),
+  () => ({soll:'Kasse', haben:'Post', betrag:rBetrag(500,5000,100), explain:'Kasse nimmt zu, Post nimmt ab → per Saldo = (beides Geld). Kein Aufwand/Ertrag → nicht erfolgswirksam.'}),
+  () => ({soll:'Mobiliar', haben:'VLL', betrag:rBetrag(5000,30000,1000), explain:'Kein Geldkonto → =. Kein Aufwand/Ertrag → nicht erfolgswirksam.'}),
+  () => ({soll:'Warenvorrat', haben:'VLL', betrag:rBetrag(3000,20000,500), explain:'Kein Geldkonto → =. Kein Aufwand/Ertrag → nicht erfolgswirksam.'}),
+];
+
+function calcWkAnswers(item) {
+  const sollGeld = isGeld(item.soll);
+  const habenGeld = isGeld(item.haben);
+  let geld; // '+', '=', '-'
+  if (sollGeld && habenGeld) geld = '=';
+  else if (sollGeld) geld = '+';
+  else if (habenGeld) geld = '-';
+  else geld = '=';
+
+  const erfolg = isErfolg(item.soll) || isErfolg(item.haben);
+  return {geld, erfolg};
+}
+
+function generateWirksamkeit() {
+  cancelAuto();
+  // Pick 10-12 random, ensure mix
+  const shuffled = wkTemplates.sort(() => Math.random() - 0.5);
+  const items = shuffled.slice(0, 10).map(fn => {
+    const item = fn();
+    item.answers = calcWkAnswers(item);
+    return item;
+  });
+
+  currentWk = {items, userGeld: items.map(() => null), userErfolg: items.map(() => null)};
+  renderWirksamkeit();
+
+  document.getElementById('wk-feedback').className = 'feedback-box';
+  document.getElementById('wk-check-btn').style.display = '';
+  document.getElementById('wk-next-btn').style.display = 'none';
+  document.getElementById('wk-learn-btn').style.display = 'none';
+  document.getElementById('wk-show-btn').style.display = '';
+}
+
+function renderWirksamkeit() {
+  document.getElementById('wk-body').innerHTML = currentWk.items.map((item, i) => {
+    const ug = currentWk.userGeld[i];
+    const ue = currentWk.userErfolg[i];
+    return `<tr id="wk-row-${i}">
+      <td class="nr">${i+1}</td>
+      <td class="left">${item.soll}</td>
+      <td class="left">${item.haben}</td>
+      <td class="betrag">CHF ${item.betrag}</td>
+      <td class="col-group"><button class="wk-rb ${ug==='+'?'sel-plus':''}" id="wk-g-${i}-p" onclick="setWkGeld(${i},'+')">+</button></td>
+      <td><button class="wk-rb ${ug==='='?'sel-eq':''}" id="wk-g-${i}-e" onclick="setWkGeld(${i},'=')">=</button></td>
+      <td><button class="wk-rb ${ug==='-'?'sel-minus':''}" id="wk-g-${i}-m" onclick="setWkGeld(${i},'-')">−</button></td>
+      <td class="col-group"><button class="wk-rb ${ue===true?'sel-ja':''}" id="wk-e-${i}-j" onclick="setWkErfolg(${i},true)">ja</button></td>
+      <td><button class="wk-rb ${ue===false?'sel-nein':''}" id="wk-e-${i}-n" onclick="setWkErfolg(${i},false)">nein</button></td>
+      <td></td>
+    </tr>
+    <tr class="wk-exp" id="wk-exp-${i}"><td colspan="10"></td></tr>`;
+  }).join('');
+}
+
+function setWkGeld(i, val) {
+  currentWk.userGeld[i] = currentWk.userGeld[i] === val ? null : val;
+  const v = currentWk.userGeld[i];
+  document.getElementById(`wk-g-${i}-p`).className = 'wk-rb' + (v==='+'?' sel-plus':'');
+  document.getElementById(`wk-g-${i}-e`).className = 'wk-rb' + (v==='='?' sel-eq':'');
+  document.getElementById(`wk-g-${i}-m`).className = 'wk-rb' + (v==='-'?' sel-minus':'');
+}
+
+function setWkErfolg(i, val) {
+  currentWk.userErfolg[i] = currentWk.userErfolg[i] === val ? null : val;
+  const v = currentWk.userErfolg[i];
+  document.getElementById(`wk-e-${i}-j`).className = 'wk-rb' + (v===true?' sel-ja':'');
+  document.getElementById(`wk-e-${i}-n`).className = 'wk-rb' + (v===false?' sel-nein':'');
+}
+
+function checkWirksamkeit() {
+  if (!currentWk) return;
+  let allCorrect = true;
+  let wrongCount = 0;
+
+  currentWk.items.forEach((item, i) => {
+    const ug = currentWk.userGeld[i];
+    const ue = currentWk.userErfolg[i];
+    const a = item.answers;
+    const geldOk = ug === a.geld;
+    const erfOk = ue === a.erfolg;
+    const rowOk = geldOk && erfOk;
+
+    if (!rowOk) {
+      allCorrect = false;
+      wrongCount++;
+      const exp = document.getElementById('wk-exp-' + i);
+      exp.classList.add('show');
+      exp.querySelector('td').innerHTML = '<strong>Erklärung:</strong> ' + item.explain;
+    }
+
+    // Markiere Geld-Buttons
+    const gp = document.getElementById(`wk-g-${i}-p`);
+    const ge = document.getElementById(`wk-g-${i}-e`);
+    const gm = document.getElementById(`wk-g-${i}-m`);
+    if (a.geld === '+') gp.classList.add('correct');
+    if (a.geld === '=') ge.classList.add('correct');
+    if (a.geld === '-') gm.classList.add('correct');
+    if (!geldOk && ug !== null) {
+      if (ug === '+') gp.classList.add('wrong-sel');
+      if (ug === '=') ge.classList.add('wrong-sel');
+      if (ug === '-') gm.classList.add('wrong-sel');
+    }
+
+    // Markiere Erfolg-Buttons
+    const ej = document.getElementById(`wk-e-${i}-j`);
+    const en = document.getElementById(`wk-e-${i}-n`);
+    if (a.erfolg) ej.classList.add('correct'); else en.classList.add('correct');
+    if (!erfOk && ue !== null) {
+      if (ue === true) ej.classList.add('wrong-sel');
+      if (ue === false) en.classList.add('wrong-sel');
+    }
+  });
+
+  const fb = document.getElementById('wk-feedback');
+  if (allCorrect) {
+    wkTotal++; wkSolved++;
+    fb.className = 'feedback-box success';
+    fb.textContent = 'Alles richtig! Nächste Aufgabe kommt gleich...';
+    document.getElementById('wk-check-btn').style.display = 'none';
+    document.getElementById('wk-next-btn').style.display = '';
+    document.getElementById('wk-learn-btn').style.display = '';
+    document.getElementById('wk-show-btn').style.display = 'none';
+    autoAdvance(generateWirksamkeit);
+  } else {
+    fb.className = 'feedback-box error';
+    fb.innerHTML = wrongCount + ' Zeile' + (wrongCount > 1 ? 'n' : '') + ' falsch. Korrekte Antwort grün, falsche rot markiert.';
+  }
+  document.getElementById('wk-score-display').textContent = wkSolved + ' / ' + wkTotal;
+}
+
+function showWirksamkeitSolution() {
+  if (!currentWk) return;
+  wkTotal++;
+
+  currentWk.items.forEach((item, i) => {
+    const a = item.answers;
+    setWkGeld(i, a.geld);
+    setWkErfolg(i, a.erfolg);
+    const exp = document.getElementById('wk-exp-' + i);
+    exp.classList.add('show');
+    exp.querySelector('td').innerHTML = '<strong>Erklärung:</strong> ' + item.explain;
+  });
+
+  const fb = document.getElementById('wk-feedback');
+  fb.className = 'feedback-box error';
+  fb.innerHTML = '<strong>Lösung angezeigt.</strong> Merke: Geldmittel = Kasse/Post/Bank. Erfolgswirksam = Aufwand oder Ertrag betroffen.';
+
+  document.getElementById('wk-check-btn').style.display = 'none';
+  document.getElementById('wk-next-btn').style.display = '';
+  document.getElementById('wk-learn-btn').style.display = '';
+  document.getElementById('wk-show-btn').style.display = 'none';
+  document.getElementById('wk-score-display').textContent = wkSolved + ' / ' + wkTotal;
+  autoAdvance(generateWirksamkeit, 5000);
 }
 </script>
 </body>
