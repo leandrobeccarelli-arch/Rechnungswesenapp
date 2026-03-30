@@ -698,6 +698,7 @@ function resetAll() {
 
 // ========== TABS ==========
 function switchTab(tab) {
+  cancelAuto();
   ['rechner','ueben','auswirkung','buchung','sortieren'].forEach(t => {
     document.getElementById('view-' + t).style.display = tab === t ? '' : 'none';
     document.getElementById('tab-' + t).className = 'nav-btn' + (tab === t ? ' active' : '');
@@ -706,6 +707,16 @@ function switchTab(tab) {
   if (tab === 'auswirkung' && !currentAw) generateAuswirkung();
   if (tab === 'buchung' && !currentBs) generateBuchung();
   if (tab === 'sortieren' && !currentSort) generateSortieren();
+}
+
+// ========== AUTO-ADVANCE ==========
+let autoTimer = null;
+function autoAdvance(fn, delay) {
+  if (autoTimer) clearTimeout(autoTimer);
+  autoTimer = setTimeout(() => { autoTimer = null; fn(); }, delay || 2500);
+}
+function cancelAuto() {
+  if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
 }
 
 // ========== AUFGABEN ==========
@@ -789,6 +800,7 @@ function pick(arr, n) {
 }
 
 function generateTask() {
+  cancelAuto();
   const firma = firmen[Math.floor(Math.random() * firmen.length)];
   document.getElementById('firma-name').textContent = firma;
 
@@ -1178,11 +1190,12 @@ function checkTask() {
   if (allCorrect) {
     total++; solved++;
     fb.className = 'feedback-box success';
-    fb.textContent = 'Alles richtig! Die Erfolgsrechnung ist korrekt aufgestellt.';
+    fb.textContent = 'Alles richtig! Nächste Aufgabe kommt gleich...';
     document.getElementById('check-btn').style.display = 'none';
     document.getElementById('next-btn').style.display = '';
     document.getElementById('learn-btn').style.display = '';
     document.getElementById('show-btn').style.display = 'none';
+    autoAdvance(generateTask);
   } else {
     // Zeige Tipp zum ersten falschen Feld
     const firstWrong = wrongFields[0];
@@ -1221,6 +1234,7 @@ function showSolution() {
   document.getElementById('learn-btn').style.display = '';
   document.getElementById('show-btn').style.display = 'none';
   document.getElementById('score-display').textContent = solved + ' / ' + total;
+  autoAdvance(generateTask, 4000);
 }
 
 // Enter zum Prüfen
@@ -1343,6 +1357,7 @@ const vorgangTemplates = [
 ];
 
 function generateAuswirkung() {
+  cancelAuto();
   // Templates nach Kategorie sortieren
   const cats = {brutto: [], betrieb: [], unternehmen: [], keine: []};
   vorgangTemplates.forEach((fn, i) => {
@@ -1463,11 +1478,12 @@ function checkAuswirkung() {
   if (allCorrect) {
     awTotal++; awSolved++;
     fb.className = 'feedback-box success';
-    fb.textContent = 'Alles richtig! Alle Auswirkungen korrekt zugeordnet.';
+    fb.textContent = 'Alles richtig! Nächste Aufgabe kommt gleich...';
     document.getElementById('aw-check-btn').style.display = 'none';
     document.getElementById('aw-next-btn').style.display = '';
     document.getElementById('aw-learn-btn').style.display = '';
     document.getElementById('aw-show-btn').style.display = 'none';
+    autoAdvance(generateAuswirkung);
   } else {
     fb.className = 'feedback-box error';
     fb.innerHTML = wrongCount + ' Vorgang/Vorgänge falsch. Bei falschen Zeilen wird die <strong>Erklärung</strong> und die <strong>korrekte Antwort</strong> (grün umrandet) angezeigt.';
@@ -1511,6 +1527,7 @@ function showAuswirkungSolution() {
   document.getElementById('aw-learn-btn').style.display = '';
   document.getElementById('aw-show-btn').style.display = 'none';
   document.getElementById('aw-score-display').textContent = awSolved + ' / ' + awTotal;
+  autoAdvance(generateAuswirkung, 5000);
 }
 
 // ========== BUCHUNGSSÄTZE ==========
@@ -1720,6 +1737,7 @@ function getKontoOptions(selectedNr) {
 }
 
 function generateBuchung() {
+  cancelAuto();
   // Wähle 5-6 verschiedene Buchungen
   const shuffled = [...bsTemplates].sort(() => Math.random() - 0.5);
   const items = shuffled.slice(0, 6).map(fn => fn());
@@ -1813,11 +1831,12 @@ function checkBuchung() {
   if (allCorrect) {
     bsTotal++; bsSolved++;
     fb.className = 'feedback-box success';
-    fb.textContent = 'Alle Buchungssätze korrekt!';
+    fb.textContent = 'Alle Buchungssätze korrekt! Nächste Aufgabe kommt gleich...';
     document.getElementById('bs-check-btn').style.display = 'none';
     document.getElementById('bs-next-btn').style.display = '';
     document.getElementById('bs-learn-btn').style.display = '';
     document.getElementById('bs-show-btn').style.display = 'none';
+    autoAdvance(generateBuchung);
   } else {
     fb.className = 'feedback-box error';
     fb.innerHTML = wrongCount + ' Buchungssatz/sätze falsch. Die korrekte Lösung und Erklärung wird bei den falschen angezeigt.';
@@ -1856,6 +1875,7 @@ function showBuchungSolution() {
   document.getElementById('bs-learn-btn').style.display = '';
   document.getElementById('bs-show-btn').style.display = 'none';
   document.getElementById('bs-score-display').textContent = bsSolved + ' / ' + bsTotal;
+  autoAdvance(generateBuchung, 4000);
 }
 
 // ========== SORTIEREN ==========
@@ -1911,6 +1931,7 @@ function pickPos(cat, n) {
 }
 
 function generateSortieren() {
+  cancelAuto();
   const branche = branchen[Math.floor(Math.random() * branchen.length)];
   let positionen = [];
   positionen.push(...pickPos('aktiv-uv', 3 + Math.floor(Math.random()*2)));
@@ -2074,7 +2095,7 @@ function checkSortieren() {
   if (allCorrect) {
     sortTotal++; sortSolved++;
     fb.className = 'feedback-box success';
-    fb.textContent = 'Alle Positionen korrekt zugeordnet!';
+    fb.textContent = 'Alle Positionen korrekt! Nächste Aufgabe kommt gleich...';
     // Zeige Gewinn
     const g = currentSort.gewinn;
     const gr = document.getElementById('sort-gewinn-row');
@@ -2085,6 +2106,7 @@ function checkSortieren() {
     document.getElementById('sort-next-btn').style.display = '';
     document.getElementById('sort-learn-btn').style.display = '';
     document.getElementById('sort-show-btn').style.display = 'none';
+    autoAdvance(generateSortieren, 3000);
   } else {
     if (unplaced.length > 0) {
       fb.className = 'feedback-box error';
@@ -2130,6 +2152,7 @@ function showSortierenSolution() {
   document.getElementById('sort-learn-btn').style.display = '';
   document.getElementById('sort-show-btn').style.display = 'none';
   document.getElementById('sort-score-display').textContent = sortSolved + ' / ' + sortTotal;
+  autoAdvance(generateSortieren, 5000);
 }
 </script>
 </body>
