@@ -205,33 +205,46 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .bs-field-btns{display:flex;gap:3px;flex-shrink:0}
 
 /* ===== SORTIEREN TAB ===== */
-.sort-list{background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;margin-bottom:16px}
-.sort-list-header{padding:14px 18px;font-weight:700;font-size:.9rem;border-bottom:1px solid var(--border);background:var(--input-bg)}
-.sort-item{display:flex;align-items:center;gap:10px;padding:9px 18px;border-bottom:1px solid var(--border);font-size:.84rem}
-.sort-item:last-child{border-bottom:none}
-.sort-item .sort-name{flex:1;font-weight:500}
-.sort-item .sort-betrag{font-weight:700;width:60px;text-align:right;flex-shrink:0}
-.sort-item .sort-sel-wrap{width:155px;flex-shrink:0;position:relative}
-.sort-item select{width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:.8rem;background:var(--input-bg);outline:none;appearance:none;cursor:pointer;font-family:'Inter',sans-serif}
-.sort-item select:focus{border-color:var(--accent)}
-.sort-item select.correct{border-color:var(--green);background:#f0fdf4}
-.sort-item select.wrong{border-color:var(--red);background:#fef2f2}
-.sort-item select.hint{border-color:var(--orange);background:#fffbeb}
-.sort-item .sort-chk{width:22px;text-align:center;font-size:.9rem;flex-shrink:0}
+.sort-pool{display:flex;flex-wrap:wrap;gap:6px;padding:14px;background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px;min-height:50px}
+.sort-pool-header{font-size:.8rem;font-weight:700;color:var(--text2);width:100%;margin-bottom:4px}
+.sort-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;font-size:.82rem;background:var(--input-bg);border:2px solid var(--border);cursor:pointer;user-select:none;transition:all .15s;white-space:nowrap}
+.sort-chip:hover{border-color:var(--accent);background:#eff6ff}
+.sort-chip.selected{border-color:var(--accent);background:#dbeafe;box-shadow:0 0 0 2px rgba(59,130,246,.25)}
+.sort-chip .chip-name{font-weight:500}
+.sort-chip .chip-val{font-weight:700;color:var(--accent)}
+.sort-chip.placed{opacity:.35;pointer-events:none;border-style:dashed}
+.sort-chip.correct-chip{border-color:var(--green);background:#f0fdf4;opacity:1;pointer-events:none}
+.sort-chip.wrong-chip{border-color:var(--red);background:#fef2f2;opacity:1;pointer-events:none}
 
-.sort-preview{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
-@media(max-width:700px){.sort-preview{grid-template-columns:1fr}}
+.sort-tables{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.sort-tables{grid-template-columns:1fr}}
+
 .sort-box{background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
 .sort-box-header{padding:12px 16px;font-weight:700;font-size:.88rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 .sort-box-header.bilanz{background:linear-gradient(135deg,#eff6ff,#dbeafe)}
 .sort-box-header.er{background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
-.sort-sub{padding:6px 16px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);background:var(--input-bg);border-bottom:1px solid var(--border)}
-.sort-entry{display:flex;justify-content:space-between;padding:5px 16px;font-size:.82rem;border-bottom:1px solid var(--border)}
-.sort-entry:last-child{border-bottom:none}
-.sort-entry .se-name{color:var(--text)}
-.sort-entry .se-val{font-weight:600}
-.sort-total{display:flex;justify-content:space-between;padding:8px 16px;font-weight:700;font-size:.88rem;border-top:2px solid var(--border);background:var(--input-bg)}
-.sort-gewinn{padding:10px 16px;font-weight:700;font-size:.9rem;text-align:center}
+
+.sort-half{display:grid;grid-template-columns:1fr 1fr}
+.sort-col{border-right:1px solid var(--border)}
+.sort-col:last-child{border-right:none}
+.sort-col-head{padding:8px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);background:var(--input-bg);border-bottom:1px solid var(--border)}
+
+.drop-zone{min-height:40px;padding:4px 8px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
+.drop-zone:last-child{border-bottom:none}
+.drop-zone.drag-over{background:#dbeafe}
+.drop-zone.highlight{background:#eff6ff;box-shadow:inset 0 0 0 2px var(--accent)}
+.drop-zone .drop-hint{color:var(--text2);font-size:.75rem;padding:8px 4px;text-align:center;font-style:italic}
+
+.drop-chip{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;font-size:.8rem;border-radius:6px;margin:3px 0;background:var(--input-bg);border:1px solid var(--border);cursor:pointer;transition:all .1s}
+.drop-chip:hover{border-color:var(--red);background:#fef2f2}
+.drop-chip .dc-name{flex:1}
+.drop-chip .dc-val{font-weight:700;font-size:.8rem}
+.drop-chip .dc-x{color:var(--text2);font-size:.7rem;margin-left:6px}
+.drop-chip.correct-drop{border-color:var(--green);background:#f0fdf4}
+.drop-chip.wrong-drop{border-color:var(--red);background:#fef2f2}
+
+.sort-total-row{display:flex;justify-content:space-between;padding:6px 12px;font-weight:700;font-size:.82rem;background:var(--input-bg);border-top:2px solid var(--border)}
+.sort-gewinn{padding:8px 12px;font-weight:700;font-size:.85rem;text-align:center}
 .sort-gewinn.pos{color:var(--green);background:#f0fdf4}
 .sort-gewinn.neg{color:var(--red);background:#fef2f2}
 </style>
@@ -570,7 +583,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 </div>
 
 <!-- ========== SORTIEREN TAB ========== -->
-<div class="container" id="view-sortieren" style="display:none">
+<div class="container" id="view-sortieren" style="display:none; max-width:960px">
 
   <div class="score-bar">
     <span>Richtig:</span>
@@ -578,17 +591,54 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
 
   <div class="info-box">
-    <strong>Positionen sortieren:</strong> Ordne jede Position der richtigen Kategorie zu — Bilanz (Aktiv UV/AV, Passiv FK/EK) oder Erfolgsrechnung (Aufwand/Ertrag). Danach wird die Bilanz und ER automatisch aufgestellt.
+    <strong>Klicke eine Position</strong> oben an, dann klicke auf den Zielbereich in der Bilanz oder Erfolgsrechnung. Zum Entfernen: Position im Zielbereich anklicken.
   </div>
 
   <div id="sort-firma" style="font-weight:700;font-size:1rem;margin-bottom:12px"></div>
 
-  <div class="sort-list">
-    <div class="sort-list-header">Positionen (alphabetisch)</div>
-    <div id="sort-items"></div>
-  </div>
+  <!-- Pool -->
+  <div class="sort-pool" id="sort-pool"></div>
 
-  <div class="sort-preview" id="sort-preview" style="display:none"></div>
+  <!-- Bilanz + ER nebeneinander -->
+  <div class="sort-tables">
+    <div class="sort-box">
+      <div class="sort-box-header bilanz">Bilanz</div>
+      <div class="sort-half">
+        <div class="sort-col">
+          <div class="sort-col-head">Aktiven</div>
+          <div class="sort-col-head" style="font-size:.65rem;color:var(--text2)">Umlaufvermögen</div>
+          <div class="drop-zone" id="dz-aktiv-uv" onclick="dropInZone('aktiv-uv')"><div class="drop-hint">Hierhin platzieren</div></div>
+          <div class="sort-col-head" style="font-size:.65rem;color:var(--text2)">Anlagevermögen</div>
+          <div class="drop-zone" id="dz-aktiv-av" onclick="dropInZone('aktiv-av')"><div class="drop-hint">Hierhin platzieren</div></div>
+          <div class="sort-total-row" id="total-aktiv"><span>Total</span><span>0</span></div>
+        </div>
+        <div class="sort-col">
+          <div class="sort-col-head">Passiven</div>
+          <div class="sort-col-head" style="font-size:.65rem;color:var(--text2)">Fremdkapital</div>
+          <div class="drop-zone" id="dz-passiv-fk" onclick="dropInZone('passiv-fk')"><div class="drop-hint">Hierhin platzieren</div></div>
+          <div class="sort-col-head" style="font-size:.65rem;color:var(--text2)">Eigenkapital</div>
+          <div class="drop-zone" id="dz-passiv-ek" onclick="dropInZone('passiv-ek')"><div class="drop-hint">Hierhin platzieren</div></div>
+          <div class="sort-total-row" id="total-passiv"><span>Total</span><span>0</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="sort-box">
+      <div class="sort-box-header er">Erfolgsrechnung</div>
+      <div class="sort-half">
+        <div class="sort-col">
+          <div class="sort-col-head">Aufwand</div>
+          <div class="drop-zone" id="dz-aufwand" onclick="dropInZone('aufwand')"><div class="drop-hint">Hierhin platzieren</div></div>
+          <div class="sort-total-row" id="total-aufwand"><span>Total</span><span>0</span></div>
+        </div>
+        <div class="sort-col">
+          <div class="sort-col-head">Ertrag</div>
+          <div class="drop-zone" id="dz-ertrag" onclick="dropInZone('ertrag')"><div class="drop-hint">Hierhin platzieren</div></div>
+          <div class="sort-total-row" id="total-ertrag"><span>Total</span><span>0</span></div>
+        </div>
+      </div>
+      <div class="sort-gewinn" id="sort-gewinn-row" style="display:none"></div>
+    </div>
+  </div>
 
   <div class="feedback-box" id="sort-feedback"></div>
 
@@ -1811,221 +1861,212 @@ function showBuchungSolution() {
 // ========== SORTIEREN ==========
 let currentSort = null;
 let sortSolved = 0, sortTotal = 0;
+let selectedChip = null; // Index der aktuell ausgewählten Position
+let placements = {}; // {index: 'aktiv-uv'|'aktiv-av'|...}
 
 const branchen = [
-  'Fachgeschäft für Surf- und Tauchbedarf',
-  'Velowerkstatt & Zubehör',
-  'Bio-Lebensmittelladen',
-  'IT-Beratungsfirma',
-  'Blumenladen',
-  'Schreinerei',
-  'Coiffeursalon',
-  'Buchhandlung',
-  'Bäckerei & Konditorei',
-  'Sportartikel-Shop',
-  'Elektroinstallationen',
-  'Architekturbüro',
+  'Fachgeschäft für Surf- und Tauchbedarf','Velowerkstatt & Zubehör','Bio-Lebensmittelladen',
+  'IT-Beratungsfirma','Blumenladen','Schreinerei','Coiffeursalon','Buchhandlung',
+  'Bäckerei & Konditorei','Sportartikel-Shop','Elektroinstallationen','Architekturbüro',
 ];
 
-// Positionen-Pool mit Kategorie
-// Kategorien: aktiv-uv, aktiv-av, passiv-fk, passiv-ek, aufwand, ertrag
 const posPool = {
   'aktiv-uv': [
-    {name: 'Flüssige Mittel', min: 20, max: 150, step: 5},
-    {name: 'Kasse', min: 5, max: 30, step: 1},
-    {name: 'Bank', min: 30, max: 200, step: 10},
-    {name: 'Debitoren', min: 10, max: 80, step: 5},
-    {name: 'Forderungen aus L+L', min: 8, max: 60, step: 2},
-    {name: 'Vorräte', min: 30, max: 250, step: 5},
-    {name: 'Warenvorrat', min: 40, max: 200, step: 10},
-    {name: 'Wertschriften', min: 10, max: 80, step: 5},
-    {name: 'Vorsteuer (VST)', min: 2, max: 15, step: 1},
+    {name:'Flüssige Mittel',min:20,max:150,step:5},{name:'Kasse',min:5,max:30,step:1},
+    {name:'Bank',min:30,max:200,step:10},{name:'Debitoren',min:10,max:80,step:5},
+    {name:'Forderungen aus L+L',min:8,max:60,step:2},{name:'Vorräte',min:30,max:250,step:5},
+    {name:'Warenvorrat',min:40,max:200,step:10},{name:'Wertschriften',min:10,max:80,step:5},
   ],
   'aktiv-av': [
-    {name: 'Mobiliar', min: 20, max: 100, step: 5},
-    {name: 'Fahrzeuge', min: 15, max: 80, step: 5},
-    {name: 'Maschinen', min: 30, max: 150, step: 10},
-    {name: 'Einrichtungen', min: 20, max: 80, step: 5},
-    {name: 'Informatik', min: 10, max: 50, step: 5},
-    {name: 'Schulungsgeräte', min: 10, max: 60, step: 5},
-    {name: 'Werkzeuge', min: 5, max: 40, step: 5},
-    {name: 'Immobilien', min: 200, max: 800, step: 50},
-    {name: 'Beteiligung', min: 50, max: 200, step: 10},
+    {name:'Mobiliar',min:20,max:100,step:5},{name:'Fahrzeuge',min:15,max:80,step:5},
+    {name:'Maschinen',min:30,max:150,step:10},{name:'Einrichtungen',min:20,max:80,step:5},
+    {name:'Informatik',min:10,max:50,step:5},{name:'Schulungsgeräte',min:10,max:60,step:5},
+    {name:'Werkzeuge',min:5,max:40,step:5},{name:'Immobilien',min:200,max:800,step:50},
   ],
   'passiv-fk': [
-    {name: 'Verbindlichkeiten aus L+L', min: 30, max: 200, step: 10},
-    {name: 'Kreditoren', min: 20, max: 150, step: 5},
-    {name: 'Darlehen (Schuld)', min: 50, max: 300, step: 10},
-    {name: 'Bankdarlehen', min: 50, max: 250, step: 10},
-    {name: 'Hypothek', min: 100, max: 500, step: 50},
-    {name: 'Geschuldete MWST', min: 5, max: 30, step: 1},
-    {name: 'Passive Rechnungsabgrenzung', min: 5, max: 25, step: 1},
+    {name:'Verbindlichkeiten aus L+L',min:30,max:200,step:10},{name:'Kreditoren',min:20,max:150,step:5},
+    {name:'Darlehen (Schuld)',min:50,max:300,step:10},{name:'Bankdarlehen',min:50,max:250,step:10},
+    {name:'Hypothek',min:100,max:500,step:50},{name:'Geschuldete MWST',min:5,max:30,step:1},
   ],
-  'passiv-ek': [
-    {name: 'Eigenkapital', min: 50, max: 300, step: 10},
-  ],
+  'passiv-ek': [{name:'Eigenkapital',min:50,max:300,step:10}],
   'aufwand': [
-    {name: 'Warenaufwand', min: 200, max: 700, step: 10},
-    {name: 'Materialaufwand', min: 100, max: 400, step: 10},
-    {name: 'Personalaufwand', min: 100, max: 400, step: 10},
-    {name: 'Löhne', min: 80, max: 300, step: 10},
-    {name: 'Sozialleistungen', min: 15, max: 60, step: 5},
-    {name: 'Raumaufwand', min: 20, max: 100, step: 5},
-    {name: 'Abschreibungen', min: 10, max: 50, step: 1},
-    {name: 'Finanzaufwand', min: 2, max: 20, step: 1},
-    {name: 'Zinsaufwand', min: 3, max: 25, step: 1},
-    {name: 'Übriger Aufwand', min: 10, max: 60, step: 5},
-    {name: 'Werbeaufwand', min: 5, max: 40, step: 5},
-    {name: 'Versicherungsaufwand', min: 5, max: 25, step: 1},
-    {name: 'Energieaufwand', min: 3, max: 20, step: 1},
-    {name: 'Informatikaufwand', min: 5, max: 30, step: 5},
-    {name: 'Fahrzeugaufwand', min: 5, max: 25, step: 1},
-    {name: 'Unterhalt', min: 5, max: 30, step: 5},
+    {name:'Warenaufwand',min:200,max:700,step:10},{name:'Materialaufwand',min:100,max:400,step:10},
+    {name:'Personalaufwand',min:100,max:400,step:10},{name:'Löhne',min:80,max:300,step:10},
+    {name:'Sozialleistungen',min:15,max:60,step:5},{name:'Raumaufwand',min:20,max:100,step:5},
+    {name:'Abschreibungen',min:10,max:50,step:1},{name:'Finanzaufwand',min:2,max:20,step:1},
+    {name:'Übriger Aufwand',min:10,max:60,step:5},{name:'Werbeaufwand',min:5,max:40,step:5},
+    {name:'Versicherungsaufwand',min:5,max:25,step:1},{name:'Energieaufwand',min:3,max:20,step:1},
+    {name:'Unterhalt',min:5,max:30,step:5},
   ],
   'ertrag': [
-    {name: 'Warenertrag', min: 400, max: 1200, step: 10},
-    {name: 'Dienstleistungsertrag', min: 200, max: 600, step: 10},
-    {name: 'Ertrag Kurshonorare', min: 50, max: 200, step: 10},
-    {name: 'Übrige Erträge', min: 10, max: 60, step: 5},
-    {name: 'Zinsertrag', min: 1, max: 10, step: 1},
-    {name: 'Mietertrag', min: 10, max: 50, step: 5},
+    {name:'Warenertrag',min:400,max:1200,step:10},{name:'Dienstleistungsertrag',min:200,max:600,step:10},
+    {name:'Ertrag Kurshonorare',min:50,max:200,step:10},{name:'Übrige Erträge',min:10,max:60,step:5},
+    {name:'Mietertrag',min:10,max:50,step:5},
   ]
 };
 
 function pickPos(cat, n) {
   const pool = [...posPool[cat]].sort(() => Math.random() - 0.5);
-  return pool.slice(0, n).map(p => ({
-    name: p.name,
-    betrag: rand(p.min, p.max, p.step),
-    cat: cat
-  }));
+  return pool.slice(0, n).map(p => ({name:p.name, betrag:rand(p.min,p.max,p.step), cat}));
 }
 
 function generateSortieren() {
   const branche = branchen[Math.floor(Math.random() * branchen.length)];
-
-  // Wähle Positionen
   let positionen = [];
-  positionen.push(...pickPos('aktiv-uv', 3 + Math.floor(Math.random() * 2)));
-  positionen.push(...pickPos('aktiv-av', 2 + Math.floor(Math.random() * 2)));
-  positionen.push(...pickPos('passiv-fk', 2 + Math.floor(Math.random() * 2)));
-  positionen.push(...pickPos('aufwand', 4 + Math.floor(Math.random() * 3)));
-  positionen.push(...pickPos('ertrag', 1 + Math.floor(Math.random() * 2)));
+  positionen.push(...pickPos('aktiv-uv', 3 + Math.floor(Math.random()*2)));
+  positionen.push(...pickPos('aktiv-av', 2 + Math.floor(Math.random()*2)));
+  positionen.push(...pickPos('passiv-fk', 2 + Math.floor(Math.random()*2)));
+  positionen.push(...pickPos('aufwand', 4 + Math.floor(Math.random()*3)));
+  positionen.push(...pickPos('ertrag', 1 + Math.floor(Math.random()*2)));
 
-  // Bilanz muss ausgeglichen sein → EK berechnen
-  const sumAktiv = positionen.filter(p => p.cat.startsWith('aktiv')).reduce((s, p) => s + p.betrag, 0);
-  const sumFK = positionen.filter(p => p.cat === 'passiv-fk').reduce((s, p) => s + p.betrag, 0);
-  const sumAufwand = positionen.filter(p => p.cat === 'aufwand').reduce((s, p) => s + p.betrag, 0);
-  const sumErtrag = positionen.filter(p => p.cat === 'ertrag').reduce((s, p) => s + p.betrag, 0);
+  const sumAktiv = positionen.filter(p => p.cat.startsWith('aktiv')).reduce((s,p) => s+p.betrag, 0);
+  const sumFK = positionen.filter(p => p.cat === 'passiv-fk').reduce((s,p) => s+p.betrag, 0);
+  const sumAufwand = positionen.filter(p => p.cat === 'aufwand').reduce((s,p) => s+p.betrag, 0);
+  const sumErtrag = positionen.filter(p => p.cat === 'ertrag').reduce((s,p) => s+p.betrag, 0);
   const gewinn = sumErtrag - sumAufwand;
-
-  // EK = Aktiven - FK - Gewinn (Schlussbilanz: Aktiv = FK + EK + Gewinn)
-  // Anfangs-EK so wählen, dass Bilanz aufgeht
   const ek = sumAktiv - sumFK - gewinn;
+  if (ek < 10) return generateSortieren();
 
-  if (ek < 10) {
-    // Falls EK zu klein, nochmals generieren
-    return generateSortieren();
-  }
-
-  positionen.push({name: 'Eigenkapital', betrag: ek, cat: 'passiv-ek'});
-
-  // Alphabetisch sortieren
-  positionen.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  positionen.push({name:'Eigenkapital', betrag:ek, cat:'passiv-ek'});
+  positionen.sort((a,b) => a.name.localeCompare(b.name,'de'));
 
   currentSort = {branche, positionen, gewinn};
+  selectedChip = null;
+  placements = {};
 
   document.getElementById('sort-firma').textContent = branche;
-  renderSortieren();
+  renderPool();
+  renderAllZones();
+  updateTotals();
 
-  document.getElementById('sort-preview').style.display = 'none';
   document.getElementById('sort-feedback').className = 'feedback-box';
   document.getElementById('sort-check-btn').style.display = '';
   document.getElementById('sort-next-btn').style.display = 'none';
   document.getElementById('sort-learn-btn').style.display = 'none';
   document.getElementById('sort-show-btn').style.display = '';
+  document.getElementById('sort-gewinn-row').style.display = 'none';
 }
 
-function renderSortieren() {
-  const container = document.getElementById('sort-items');
-  const opts = `<option value="">— Zuordnen —</option>
-    <optgroup label="Bilanz Aktiv">
-      <option value="aktiv-uv">Umlaufvermögen</option>
-      <option value="aktiv-av">Anlagevermögen</option>
-    </optgroup>
-    <optgroup label="Bilanz Passiv">
-      <option value="passiv-fk">Fremdkapital</option>
-      <option value="passiv-ek">Eigenkapital</option>
-    </optgroup>
-    <optgroup label="Erfolgsrechnung">
-      <option value="aufwand">Aufwand</option>
-      <option value="ertrag">Ertrag</option>
-    </optgroup>`;
-
-  container.innerHTML = currentSort.positionen.map((p, i) => `
-    <div class="sort-item">
-      <div class="sort-name">${p.name}</div>
-      <div class="sort-betrag">${fmtShort(p.betrag)}</div>
-      <div class="sort-sel-wrap">
-        <select id="sort-sel-${i}">${opts}</select>
-      </div>
-      <div class="sort-chk" id="sort-chk-${i}"></div>
-    </div>
-  `).join('');
+function renderPool() {
+  const pool = document.getElementById('sort-pool');
+  pool.innerHTML = '<div class="sort-pool-header">Positionen — klicke eine an und platziere sie unten</div>' +
+    currentSort.positionen.map((p, i) => {
+      const placed = placements[i] !== undefined;
+      const sel = selectedChip === i;
+      return `<div class="sort-chip ${placed ? 'placed' : ''} ${sel ? 'selected' : ''}" id="chip-${i}" onclick="selectChip(${i})">
+        <span class="chip-name">${p.name}</span> <span class="chip-val">${fmtShort(p.betrag)}</span>
+      </div>`;
+    }).join('');
 }
 
-function buildPreview() {
-  const p = currentSort.positionen;
-  const bycat = (cat) => p.filter(x => x.cat === cat);
-  const sum = (arr) => arr.reduce((s, x) => s + x.betrag, 0);
-  const entries = (arr) => arr.map(x => `<div class="sort-entry"><span class="se-name">${x.name}</span><span class="se-val">${fmtShort(x.betrag)}</span></div>`).join('');
+function selectChip(i) {
+  if (placements[i] !== undefined) return; // already placed
+  selectedChip = selectedChip === i ? null : i;
+  renderPool();
+  // Highlight drop zones
+  document.querySelectorAll('.drop-zone').forEach(dz => {
+    dz.classList.toggle('highlight', selectedChip !== null);
+  });
+}
 
-  const uv = bycat('aktiv-uv'), av = bycat('aktiv-av');
-  const fk = bycat('passiv-fk'), ek = bycat('passiv-ek');
-  const aufw = bycat('aufwand'), ertr = bycat('ertrag');
-  const gewinn = currentSort.gewinn;
-  const totalA = sum(uv) + sum(av);
+function dropInZone(zone) {
+  if (selectedChip === null) return;
+  placements[selectedChip] = zone;
+  selectedChip = null;
+  renderPool();
+  renderAllZones();
+  updateTotals();
+  document.querySelectorAll('.drop-zone').forEach(dz => dz.classList.remove('highlight'));
+}
 
-  return `
-    <div class="sort-box">
-      <div class="sort-box-header bilanz">Bilanz<span>${fmtShort(totalA)}</span></div>
-      <div class="sort-sub">Umlaufvermögen</div>${entries(uv)}
-      <div class="sort-sub">Anlagevermögen</div>${entries(av)}
-      <div class="sort-total"><span>Total Aktiven</span><span>${fmtShort(totalA)}</span></div>
-      <div class="sort-sub">Fremdkapital</div>${entries(fk)}
-      <div class="sort-sub">Eigenkapital</div>${entries(ek)}
-      ${gewinn >= 0
-        ? `<div class="sort-entry"><span class="se-name">+ Gewinn</span><span class="se-val" style="color:var(--green)">${fmtShort(gewinn)}</span></div>`
-        : `<div class="sort-entry"><span class="se-name">− Verlust</span><span class="se-val" style="color:var(--red)">${fmtShort(Math.abs(gewinn))}</span></div>`}
-      <div class="sort-total"><span>Total Passiven</span><span>${fmtShort(totalA)}</span></div>
-    </div>
-    <div class="sort-box">
-      <div class="sort-box-header er">Erfolgsrechnung</div>
-      <div class="sort-sub">Aufwand</div>${entries(aufw)}
-      <div class="sort-total"><span>Total Aufwand</span><span>${fmtShort(sum(aufw))}</span></div>
-      <div class="sort-sub">Ertrag</div>${entries(ertr)}
-      <div class="sort-total"><span>Total Ertrag</span><span>${fmtShort(sum(ertr))}</span></div>
-      <div class="sort-gewinn ${gewinn >= 0 ? 'pos' : 'neg'}">${gewinn >= 0 ? 'Gewinn' : 'Verlust'}: CHF ${fmtShort(Math.abs(gewinn))}</div>
-    </div>`;
+function removeFromZone(idx) {
+  delete placements[idx];
+  renderPool();
+  renderAllZones();
+  updateTotals();
+}
+
+function renderAllZones() {
+  const zones = ['aktiv-uv','aktiv-av','passiv-fk','passiv-ek','aufwand','ertrag'];
+  zones.forEach(zone => {
+    const dz = document.getElementById('dz-' + zone);
+    const items = [];
+    for (const [idx, z] of Object.entries(placements)) {
+      if (z === zone) items.push(parseInt(idx));
+    }
+    if (items.length === 0) {
+      dz.innerHTML = '<div class="drop-hint">Hierhin platzieren</div>';
+    } else {
+      dz.innerHTML = items.map(idx => {
+        const p = currentSort.positionen[idx];
+        return `<div class="drop-chip" onclick="event.stopPropagation();removeFromZone(${idx})" title="Klicke zum Entfernen">
+          <span class="dc-name">${p.name}</span><span class="dc-val">${fmtShort(p.betrag)}</span><span class="dc-x">✕</span>
+        </div>`;
+      }).join('');
+    }
+  });
+}
+
+function updateTotals() {
+  const sumZone = (zone) => {
+    let s = 0;
+    for (const [idx, z] of Object.entries(placements)) {
+      if (z === zone) s += currentSort.positionen[parseInt(idx)].betrag;
+    }
+    return s;
+  };
+  const tA = sumZone('aktiv-uv') + sumZone('aktiv-av');
+  const tP = sumZone('passiv-fk') + sumZone('passiv-ek');
+  const tAufw = sumZone('aufwand');
+  const tErtr = sumZone('ertrag');
+
+  document.getElementById('total-aktiv').innerHTML = `<span>Total Aktiven</span><span>${fmtShort(tA)}</span>`;
+  document.getElementById('total-passiv').innerHTML = `<span>Total Passiven</span><span>${fmtShort(tP)}</span>`;
+  document.getElementById('total-aufwand').innerHTML = `<span>Total Aufwand</span><span>${fmtShort(tAufw)}</span>`;
+  document.getElementById('total-ertrag').innerHTML = `<span>Total Ertrag</span><span>${fmtShort(tErtr)}</span>`;
 }
 
 function checkSortieren() {
   if (!currentSort) return;
   let allCorrect = true;
   let wrongCount = 0;
+  const unplaced = [];
 
   currentSort.positionen.forEach((p, i) => {
-    const sel = document.getElementById('sort-sel-' + i);
-    const chk = document.getElementById('sort-chk-' + i);
-
-    if (sel.value === p.cat) {
-      sel.className = 'correct';
-      chk.textContent = '✓'; chk.style.color = 'var(--green)';
-    } else {
-      sel.className = 'wrong';
-      chk.textContent = '✗'; chk.style.color = 'var(--red)';
+    const chip = document.getElementById('chip-' + i);
+    if (placements[i] === undefined) {
+      unplaced.push(p.name);
       allCorrect = false;
       wrongCount++;
+      chip.className = 'sort-chip wrong-chip';
+    } else if (placements[i] === p.cat) {
+      chip.className = 'sort-chip correct-chip';
+    } else {
+      chip.className = 'sort-chip wrong-chip';
+      allCorrect = false;
+      wrongCount++;
+    }
+  });
+
+  // Markiere falsche Drop-Chips
+  const zones = ['aktiv-uv','aktiv-av','passiv-fk','passiv-ek','aufwand','ertrag'];
+  zones.forEach(zone => {
+    const dz = document.getElementById('dz-' + zone);
+    dz.querySelectorAll('.drop-chip').forEach(dc => {
+      const idx = [...Object.entries(placements)].find(([i,z]) => z === zone);
+    });
+    for (const [idx, z] of Object.entries(placements)) {
+      if (z === zone) {
+        const p = currentSort.positionen[parseInt(idx)];
+        const isCorrect = p.cat === zone;
+        const chips = dz.querySelectorAll('.drop-chip');
+        chips.forEach(c => {
+          if (c.querySelector('.dc-name').textContent === p.name) {
+            c.classList.add(isCorrect ? 'correct-drop' : 'wrong-drop');
+            c.onclick = null; // Deaktiviere Entfernen
+          }
+        });
+      }
     }
   });
 
@@ -2034,17 +2075,25 @@ function checkSortieren() {
     sortTotal++; sortSolved++;
     fb.className = 'feedback-box success';
     fb.textContent = 'Alle Positionen korrekt zugeordnet!';
-    document.getElementById('sort-preview').innerHTML = buildPreview();
-    document.getElementById('sort-preview').style.display = '';
+    // Zeige Gewinn
+    const g = currentSort.gewinn;
+    const gr = document.getElementById('sort-gewinn-row');
+    gr.style.display = '';
+    gr.className = 'sort-gewinn ' + (g >= 0 ? 'pos' : 'neg');
+    gr.textContent = (g >= 0 ? 'Gewinn' : 'Verlust') + ': CHF ' + fmtShort(Math.abs(g));
     document.getElementById('sort-check-btn').style.display = 'none';
     document.getElementById('sort-next-btn').style.display = '';
     document.getElementById('sort-learn-btn').style.display = '';
     document.getElementById('sort-show-btn').style.display = 'none';
   } else {
-    fb.className = 'feedback-box error';
-    fb.innerHTML = wrongCount + ' Position' + (wrongCount > 1 ? 'en' : '') + ' falsch zugeordnet. Tipp: Aktiven = Vermögenswerte, Passiven = Schulden + EK, Aufwand/Ertrag = ER.';
+    if (unplaced.length > 0) {
+      fb.className = 'feedback-box error';
+      fb.innerHTML = unplaced.length + ' Position' + (unplaced.length > 1 ? 'en' : '') + ' noch nicht platziert. ' + (wrongCount - unplaced.length > 0 ? (wrongCount - unplaced.length) + ' falsch zugeordnet.' : '');
+    } else {
+      fb.className = 'feedback-box error';
+      fb.innerHTML = wrongCount + ' Position' + (wrongCount > 1 ? 'en' : '') + ' falsch. Falsche sind rot markiert — klicke sie an und platziere sie neu.';
+    }
   }
-
   document.getElementById('sort-score-display').textContent = sortSolved + ' / ' + sortTotal;
 }
 
@@ -2052,20 +2101,29 @@ function showSortierenSolution() {
   if (!currentSort) return;
   sortTotal++;
 
+  // Alle richtig platzieren
+  placements = {};
+  currentSort.positionen.forEach((p, i) => { placements[i] = p.cat; });
+  renderPool();
+  renderAllZones();
+  updateTotals();
+
+  // Alle Chips als hint markieren
   currentSort.positionen.forEach((p, i) => {
-    const sel = document.getElementById('sort-sel-' + i);
-    const chk = document.getElementById('sort-chk-' + i);
-    sel.value = p.cat;
-    sel.className = 'hint';
-    chk.textContent = '→'; chk.style.color = 'var(--orange)';
+    const chip = document.getElementById('chip-' + i);
+    chip.className = 'sort-chip correct-chip';
+    chip.style.opacity = '1';
   });
 
-  document.getElementById('sort-preview').innerHTML = buildPreview();
-  document.getElementById('sort-preview').style.display = '';
+  const g = currentSort.gewinn;
+  const gr = document.getElementById('sort-gewinn-row');
+  gr.style.display = '';
+  gr.className = 'sort-gewinn ' + (g >= 0 ? 'pos' : 'neg');
+  gr.textContent = (g >= 0 ? 'Gewinn' : 'Verlust') + ': CHF ' + fmtShort(Math.abs(g));
 
   const fb = document.getElementById('sort-feedback');
   fb.className = 'feedback-box error';
-  fb.innerHTML = '<strong>Lösung angezeigt.</strong> Merke: Kontenklassen 1xxx = Aktiv, 2xxx = Passiv, 3xxx = Ertrag, 4-6xxx = Aufwand.';
+  fb.innerHTML = '<strong>Lösung angezeigt.</strong> Merke: UV = kurzfristig (Kasse, Bank, Debitoren, Vorräte), AV = langfristig (Mobiliar, Maschinen, Fahrzeuge). FK = Schulden, EK = Eigenkapital.';
 
   document.getElementById('sort-check-btn').style.display = 'none';
   document.getElementById('sort-next-btn').style.display = '';
