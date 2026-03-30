@@ -829,9 +829,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 function dismissSplash() {
   document.getElementById('splash').classList.add('hide');
   setTimeout(() => document.getElementById('splash').remove(), 600);
+  sessionStorage.setItem('splashSeen', '1');
 }
-// Auto-dismiss nach 3s
-setTimeout(dismissSplash, 3000);
+if (sessionStorage.getItem('splashSeen')) {
+  document.getElementById('splash').remove();
+} else {
+  setTimeout(dismissSplash, 3000);
+}
 
 // ========== RECHNER ==========
 function parseNum(id) {
